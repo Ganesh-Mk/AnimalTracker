@@ -1,14 +1,16 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
-import MapPage from './pages/MapPage'
+import TractPage from './pages/TrackPage'
+import ManagePage from './pages/ManagePage'
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/mappage" element={<MapPage />} />
+        <Route path="/track" element={<TractPage />} />
+        <Route path="/manage" element={<ManagePage />} />
       </Routes>
     </Router>
   )

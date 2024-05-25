@@ -8,13 +8,14 @@ import {
   Polyline,
 } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import '../styles/TrackPage.css'
 import cat from '../images/cat.png'
 import dog from '../images/dog.png'
 import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png' // Add an image for the owner
 import '../styles/CustomMarker.css' // Import CSS file for custom marker styles
 
-const MapPage = () => {
+const TractPage = () => {
   const [centerPosition, setCenterPosition] = useState([16.1622, 74.8298]) // Initial center position [latitude, longitude]
   const [ownerPosition, setOwnerPosition] = useState(null) // Initial owner position
   const [markers, setMarkers] = useState([
@@ -30,16 +31,18 @@ const MapPage = () => {
   const [distances, setDistances] = useState([]) // Track distances between owner and animals
 
   useEffect(() => {
-    // Request user's location
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords
-        setOwnerPosition([latitude, longitude])
-      },
-      (error) => {
-        console.error('Error getting user location:', error)
-      },
-    )
+    // // Request user's location
+    // navigator.geolocation.getCurrentPosition(
+    //   (position) => {
+    //     const { latitude, longitude } = position.coords
+    //     setOwnerPosition([latitude, longitude])
+    //   },
+    //   (error) => {
+    //     console.error('Error getting user location:', error)
+    //   },
+    // )
+
+    setOwnerPosition([16.1652, 74.8298])
   }, [])
 
   useEffect(() => {
@@ -226,71 +229,6 @@ const MapPage = () => {
           ))}
         </div>
       </div>
-      <style jsx>{`
-        .container {
-          display: flex;
-          height: 100vh;
-        }
-        .map-container {
-          flex: 70%;
-          height: 100%;
-        }
-        .info-container {
-          flex: 30%;
-          padding: 10px;
-          overflow-y: auto;
-        }
-        .distances-container {
-          margin-bottom: 20px;
-          text-align: center;
-        }
-        .owner-info {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-        .owner-icon {
-          width: 50px;
-          height: 50px;
-          margin-bottom: 10px;
-        }
-        .distances-details {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .distances-details p {
-          margin: 0;
-        }
-        .outside-circle-container {
-          margin-top: 20px;
-        }
-        .animal-info {
-          display: flex;
-          align-items: center;
-          border: 1px solid #ccc;
-          padding: 10px;
-          margin-bottom: 10px;
-          border-radius: 5px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .animal-info.outside {
-          background-color: red;
-        }
-        .animal-icon {
-          width: 50px;
-          height: 50px;
-          margin-right: 10px;
-        }
-        .animal-details {
-          display: flex;
-          flex-direction: column;
-        }
-        .animal-details p {
-          margin: 0;
-        }
-      `}</style>
     </div>
   )
 }
@@ -372,4 +310,4 @@ const getLineColor = (index) => {
 // Function to generate random offset for movement
 const getRandomOffset = () => (Math.random() - 0.5) * 0.001
 
-export default MapPage
+export default TractPage
