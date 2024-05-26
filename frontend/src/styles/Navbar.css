@@ -9,9 +9,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: .5vw 4vw 0vw 4vw;
-    padding: .4vw .5vw .4vw .5vw;
+    width: 98.9vw;
     border-radius: .4vw;
+    padding: .3vw 0vw .3vw 0vw;
 }
 .navbarpart1 {
     display: flex;
@@ -41,7 +41,7 @@
 
 }
 .navbarpart3 img{
-    width: 2.2vw;
+    width: 2.1vw;
 }
 
 
