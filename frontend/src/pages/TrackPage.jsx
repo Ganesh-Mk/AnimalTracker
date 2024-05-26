@@ -56,7 +56,7 @@ const TractPage = () => {
         ],
       ])
       setMarkers(newMarkers)
-    }, 5000)
+    }, 100000)
 
     return () => clearInterval(interval)
   }, [markers])

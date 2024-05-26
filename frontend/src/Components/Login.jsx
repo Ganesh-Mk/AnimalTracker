@@ -1,43 +1,46 @@
-import React, { useState } from "react";
-import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react'
+import { Button } from 'primereact/button'
+import { Dialog } from 'primereact/dialog'
+import { InputText } from 'primereact/inputtext'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 function Login() {
-  const [visible, setVisible] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+  const [visible, setVisible] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const [userPassword, setUserPassword] = useState('')
   const navigate = useNavigate()
 
   const handleLogin = (e) => {
-    e.preventDefault();
-    if (userEmail === "" || userPassword === "") {
-      alert("Fill all values correctly");
-      return;
+    e.preventDefault()
+
+    if (userEmail === '' || userPassword === '') {
+      alert('Fill all values correctly')
+      return
     }
     axios
-      .post("http://localhost:3001/login", { userEmail, userPassword })
+      .post('http://localhost:3001/login', { userEmail, userPassword })
       .then((result) => {
-        if (result.data === "Success") {
-          console.log("All Done");
+        if (result.data === 'Success') {
+          console.log('All Done')
         } else {
-            alert('Wrong credentials')
-            return
+          alert('Wrong credentials')
+          return
         }
-        setUserEmail("");
-        setUserPassword("");
-        navigate('/account')
+        setUserEmail('')
+        setUserPassword('')
+        navigate('/manage')
       })
-      .catch((err) => console.log(err));
-  };
+      .catch((err) => console.log(err))
+
+    hide(e)
+  }
 
   return (
     <div className="loginContainer">
       <div className="card flex justify-content-center">
         <Button
-          style={{ height: "2vw", width: "6vw", marginBottom: "1vw" }}
+          style={{ height: '2vw', width: '6vw', marginBottom: '1vw' }}
           className="custom-button"
           label="Login"
           icon="pi pi-user"
@@ -51,12 +54,12 @@ function Login() {
             <div
               className="flex flex-column px-8 py-5 gap-4"
               style={{
-                borderRadius: "12px",
+                borderRadius: '12px',
                 backgroundImage:
-                  "radial-gradient(circle at left top, var(--primary-400), var(--primary-700))",
+                  'radial-gradient(circle at left top, var(--primary-400), var(--primary-700))',
               }}
             >
-              <h1 style={{ textAlign: "center", color: "white" }}>Log in</h1>
+              <h1 style={{ textAlign: 'center', color: 'white' }}>Log in</h1>
               <div className="inline-flex flex-column gap-2">
                 <label
                   htmlFor="useremail"
@@ -106,7 +109,7 @@ function Login() {
         ></Dialog>
       </div>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default Login

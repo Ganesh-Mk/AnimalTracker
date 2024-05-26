@@ -14,16 +14,16 @@ mongoose
 
 app.post('/register', (req, res) => {
   UsersModel.create(req.body)
-    .then((user) => res.json(user))
-    .catch((err) => res.json(err))
+    .then((user) => res.send(user))
+    .catch((err) => res.send(err))
 })
 
 app.post('/login', (req, res) => {
   const { userEmail, userPassword } = req.body
   UsersModel.findOne({ userEmail: userEmail }).then((user) => {
     if (user) {
-      if (user.userPassword === userPassword) {
-        res.json('Success')
+      if (user.password === userPassword) {
+        res.send(user)
       } else {
         res.json('Password is incorrect')
       }

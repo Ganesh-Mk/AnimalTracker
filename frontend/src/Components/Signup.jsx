@@ -1,41 +1,59 @@
-import React, { useState } from "react";
-import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog";
-import axios from "axios";
-import { InputText } from "primereact/inputtext";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react'
+import { Button } from 'primereact/button'
+import { Dialog } from 'primereact/dialog'
+import axios from 'axios'
+import { InputText } from 'primereact/inputtext'
+import { useNavigate } from 'react-router-dom'
+import {
+  setId,
+  setName,
+  setEmail,
+  setPassword,
+  setUserImage,
+} from '../store/userSlice'
+import { useSelector, useDispatch } from 'react-redux'
 
 function Signup() {
-  const [visible, setVisible] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+  const dispatch = useDispatch()
+
+  const [visible, setVisible] = useState(false)
+  const [userName, setUserName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [userPassword, setUserPassword] = useState('')
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if(userEmail === "" || userName === "" || userPassword === "") {
-        alert("Fill all values correctly")
-        return;
+    e.preventDefault()
+    if (userEmail === '' || userName === '' || userPassword === '') {
+      alert('Fill all values correctly')
+      return
     }
     axios
-      .post("http://localhost:3001/register", { userName, userEmail, userPassword })
-      .then(res => {
-        console.log(res);
-        setUserEmail("")
-        setUserName("")
-        setUserPassword("")
-
-        navigate("/account")
+      .post('http://localhost:3001/register', {
+        userName,
+        userEmail,
+        userPassword,
       })
-      .catch((err) => console.log(err));
-  };
+      .then((result) => {
+        console.log(result)
+        dispatch(setName(result.data.userName))
+        dispatch(setEmail(result.data.userEmail))
+        dispatch(setPassword(result.data.userPassword))
+        setUserEmail('')
+        setUserName('')
+        setUserPassword('')
+        navigate('/account')
+      })
+      .catch((err) => console.log(err))
+  }
+
+  useEffect(() => {}, [])
 
   return (
     <div className="signupContainer">
       <div className="card flex justify-content-center">
         <Button
-          style={{ height: "2vw", width: "6vw" }}
+          style={{ height: '2vw', width: '6vw' }}
           className="custom-button"
           label="Signup"
           icon="pi pi-user"
@@ -49,12 +67,12 @@ function Signup() {
             <div
               className="flex flex-column px-8 py-5 gap-4"
               style={{
-                borderRadius: "12px",
+                borderRadius: '12px',
                 backgroundImage:
-                  "radial-gradient(circle at left top, var(--primary-400), var(--primary-700))",
+                  'radial-gradient(circle at left top, var(--primary-400), var(--primary-700))',
               }}
             >
-              <h1 style={{ textAlign: "center", color: "white" }}>Sign up</h1>
+              <h1 style={{ textAlign: 'center', color: 'white' }}>Sign up</h1>
               <div className="inline-flex flex-column gap-2">
                 <label
                   htmlFor="username"
@@ -120,7 +138,7 @@ function Signup() {
         ></Dialog>
       </div>
     </div>
-  );
+  )
 }
 
-export default Signup;
+export default Signup
