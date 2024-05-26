@@ -1,13 +1,38 @@
 const express = require('express')
-const dotenv = require('dotenv')
-dotenv.config()
-const app = express()
+const mongoose = require('mongoose')
+const cors = require('cors')
+const UsersModel = require('./models/Users')
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!')
+const app = express()
+app.use(express.json())
+app.use(cors())
+
+mongoose.connect('mongodb://127.0.0.1:27017/Users')
+
+app.post('/register', (req, res) => {
+  UsersModel.create(req.body)
+  .then(user => res.json(user))
+  .catch(err => res.json(err))
+
 })
 
-const PORT = process.env.PORT
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`)
+app.post('/login', (req, res) =>  {
+  const {userEmail, userPassword} = req.body
+  UsersModel.findOne({userEmail: userEmail})
+    .then(user => {
+      if(user) {
+        if(user.userPassword === userPassword) {
+          res.json('Success')
+        }else {
+          res.json('Password is incorrect')
+        }
+      } else {
+        res.json('User not exist')
+      }
+    })
+})
+
+
+app.listen(3001, () => {
+  console.log('Server is running')
 })
