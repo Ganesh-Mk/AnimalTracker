@@ -1,3 +1,4 @@
+
 import React from "react";
 import mainimg from '../images/mainimg.png'
 import Navbar from "../Components/Navbar";
@@ -132,7 +133,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <section className="w-full py-8 md:py-12 bg-[#f0f8ff] dark:bg-[#1f2937]">
         <div className="container h-auto px-4 md:px-6 flex flex-col items-center text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl text-[#0077b6]">

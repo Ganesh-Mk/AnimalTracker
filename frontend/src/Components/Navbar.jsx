@@ -26,7 +26,6 @@ const Navbar = () => {
       </div>
       <div className="navbarpart2">
         <p>Home</p>
-        <p>Start</p>
         <p>Track</p>
         <p>Manage</p>
       </div>

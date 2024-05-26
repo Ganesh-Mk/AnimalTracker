@@ -14,3 +14,10 @@
   border: 1px solid black;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 }
+
+.marker-previous {
+  height: 0;
+  width: 0;
+  transform: scale(0);
+  opacity: 0.6;
+}
