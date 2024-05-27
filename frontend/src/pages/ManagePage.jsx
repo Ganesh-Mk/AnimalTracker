@@ -195,8 +195,6 @@ const ManagePage = () => {
 
   const handleMapClick = (e) => {
     const { lat, lng } = e.latlng
-    console.log(`Latitude: ${lat}, Longitude: ${lng}`)
-    // Set latitude and longitude in state
     setNewAnimalLat(lat)
     setNewAnimalLng(lng)
   }
