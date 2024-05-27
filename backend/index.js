@@ -22,8 +22,8 @@ app.post('/login', (req, res) => {
   const { userEmail, userPassword } = req.body
   UsersModel.findOne({ userEmail: userEmail }).then((user) => {
     if (user) {
-      if (user.password === userPassword) {
-        res.send(user)
+      if (user.userPassword === userPassword) {
+        res.send("Success")
       } else {
         res.json('Password is incorrect')
       }

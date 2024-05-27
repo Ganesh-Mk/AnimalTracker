@@ -1,36 +1,72 @@
-import React, { useState } from 'react'
-import '../styles/Navbar.css'
-import { Button } from 'primereact/button'
-import { Dialog } from 'primereact/dialog'
-import Login from './Login'
-import Signup from './Signup'
-import profile from '../images/profile.png'
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Login from "./Login";
+import Signup from "./Signup";
 import logo from '../images/logo.png'
-import { MessageSeverity } from 'primereact/api'
-import { Link } from 'react-router-dom'
 
-const Navbar = () => {
-  const [visible, setVisible] = useState(false)
+export default function Navabr() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const authStatus = localStorage.getItem("isAuthenticated");
+    if(authStatus === "true")
+    setIsAuthenticated(true);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    setIsAuthenticated(false);
+    navigate("/")
+
+  };
 
   return (
-    <div className="outernavbar">
-      <div className="navbarpart1">
-        <img src={logo} alt="" />
-      </div>
-      <div className="navbarpart2">
-        <p>Home</p>
-        <p>Track</p>
-        <p>Manage</p>
-      </div>
-      <div className="navbarpart3">
-        <Login />
-        <Signup />
-        <Link to="/account">
-          <img src={profile} alt="" />
+    <header className="flex items-center justify-between h-16 px-4 md:px-6 backdrop-blur-sm bg-white/80">
+      <Link className="flex items-center gap-2" to="#">
+      <img style={{width:"2vw"}} src={logo} alt="" />
+      <span style={{fontWeight:"700"}}>Animal Tracker</span>
+      </Link>
+      <nav className="hidden md:flex items-center gap-6">
+        <Link className="text-sm font-medium hover:underline" to="/">
+          <p style={{fontWeight:"700", fontSize:"1vw"}}>Home</p>
         </Link>
+        <Link className="text-sm font-medium hover:underline" to="/track">
+        <p style={{fontWeight:"700", fontSize:"1vw"}}>Track</p>
+        </Link>
+        <Link className="text-sm font-medium hover:underline" to="/manage">
+        <p style={{fontWeight:"700", fontSize:"1vw"}}>Manage</p>
+        </Link>
+      </nav>
+      <div className="flex p-0 m-0 align-items-center justify-center gap-2">
+      {isAuthenticated ? (
+          <button onClick={handleLogout} style={{fontWeight:"700"}}>Logout</button>
+        ) : (
+          <>
+            <Login setIsAuthenticated={setIsAuthenticated} />
+            <Signup setIsAuthenticated={setIsAuthenticated} />
+          </>
+        )}
       </div>
-    </div>
-  )
+    </header>
+  );
 }
 
-export default Navbar
+function MountainIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+    </svg>
+  );
+}
