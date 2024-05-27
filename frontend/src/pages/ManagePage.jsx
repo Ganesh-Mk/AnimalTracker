@@ -162,6 +162,7 @@ const ManagePage = () => {
         email: localStorage.getItem('email'),
         mainBorder,
         newAnimalLat,
+        shape,
         newAnimalLng,
         nearestBorder,
         newAnimalName,
@@ -181,6 +182,7 @@ const ManagePage = () => {
     if (border) {
       setMainBorder(border.mainBorder)
       setNearestBorder(border.nearestBorder)
+      setShape(border.shape)
     }
 
     let allAnimals = JSON.parse(localStorage.getItem('allAnimals'))
