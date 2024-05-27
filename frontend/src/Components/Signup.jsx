@@ -59,7 +59,7 @@ function Signup({ setIsAuthenticated }) {
           onHide={() => setVisible(false)}
         >
           <div
-            className="flex flex-column px-8 py-5 gap-4"
+            className="flex flex-column px-8 py-5 gap-1.5"
             style={{
               borderRadius: '12px',
               backgroundImage:

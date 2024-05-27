@@ -63,7 +63,7 @@ function Login({ setIsAuthenticated }) {
           onHide={() => setVisible(false)}
         >
           <div
-            className="flex flex-column px-8 py-5 gap-4"
+            className="flex flex-column px-8 py-5 gap-2"
             style={{
               borderRadius: '12px',
               backgroundImage:
