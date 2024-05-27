@@ -7,7 +7,8 @@ const UsersSchema = new mongoose.Schema({
   allAnimals: [
     {
       name: String,
-      walked: [[Number]],
+      positions: [Array],
+      icon: String,
     },
   ],
   border: {

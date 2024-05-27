@@ -18,6 +18,7 @@ import dog from '../images/dog.png'
 import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
+import axios from 'axios'
 
 const ManagePage = () => {
   const [centerPosition, setCenterPosition] = useState([16.1622, 74.8298])
@@ -155,7 +156,41 @@ const ManagePage = () => {
       setNewAnimalLat('')
       setNewAnimalLng('')
     }
+
+    axios
+      .post('http://localhost:3001/addAnimal', {
+        email: localStorage.getItem('email'),
+        mainBorder,
+        newAnimalLat,
+        newAnimalLng,
+        nearestBorder,
+        newAnimalName,
+      })
+      .then((res) => {
+        console.log(res.data)
+        localStorage.setItem('allAnimals', JSON.stringify(res.data.allAnimals))
+        localStorage.setItem('border', JSON.stringify(res.data.border))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
+
+  useEffect(() => {
+    let border = JSON.parse(localStorage.getItem('border'))
+    if (border) {
+      setMainBorder(border.mainBorder)
+      setNearestBorder(border.nearestBorder)
+    }
+
+    let allAnimals = JSON.parse(localStorage.getItem('allAnimals'))
+    console.log('allAnimals: ', allAnimals)
+    if (allAnimals) {
+      setMarkers(allAnimals)
+    }
+
+    console.log('markers: ', markers)
+  }, [])
 
   const getCircleOptions = (borderType) => ({
     color: borderType === 'main' ? 'blue' : 'green',
