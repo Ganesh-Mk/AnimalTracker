@@ -51,6 +51,11 @@
   border: none;
 }
 
+.seperator {
+  border: 0.15vw solid rgba(0, 0, 0, 0.116);
+  margin-bottom: 1.5vw;
+}
+
 label {
   display: block;
   margin-bottom: 10px;

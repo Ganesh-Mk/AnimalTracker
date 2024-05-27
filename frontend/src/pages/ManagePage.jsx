@@ -58,7 +58,7 @@ const ManagePage = () => {
         ],
       }))
       setMarkers(newMarkers)
-    }, 5000)
+    }, 100000)
 
     return () => clearInterval(interval)
   }, [markers])
@@ -284,7 +284,10 @@ const ManagePage = () => {
       <div className="info">
         <div className="controls">
           <label>
-            Select Shape:
+            <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
+              Select Border Shape
+            </h4>
+
             <div className="shape-buttons">
               <button
                 className={shape === 'circle' ? 'active infoBtn' : 'infoBtn'}
@@ -304,8 +307,8 @@ const ManagePage = () => {
             Main Border Size (meters): {mainBorder}
             <input
               type="range"
-              min="100"
-              max="5000"
+              min="10"
+              max="10000"
               value={mainBorder}
               onChange={(e) => setMainBorder(e.target.value)}
               style={{ marginLeft: '10px' }}
@@ -315,21 +318,26 @@ const ManagePage = () => {
             Nearest Border Size (meters): {nearestBorder}
             <input
               type="range"
-              min="100"
-              max="5000"
+              min="10"
+              max="10000"
               value={nearestBorder}
               onChange={(e) => setNearestBorder(e.target.value)}
               style={{ marginLeft: '10px' }}
             />
           </label>
         </div>
+        <div className="seperator"></div>
         <div className="add-animal">
-          <h4>Add New Animal</h4>
+          <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
+            Add New Animal Details
+          </h4>
+
           <label>
             Name:
             <input
               type="text"
               value={newAnimalName}
+              placeholder="Unique nickname of animal"
               onChange={(e) => setNewAnimalName(e.target.value)}
             />
           </label>
