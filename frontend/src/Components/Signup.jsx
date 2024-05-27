@@ -5,6 +5,8 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Signup({ setIsAuthenticated }) {
   const [visible, setVisible] = useState(false);
@@ -28,6 +30,7 @@ function Signup({ setIsAuthenticated }) {
         setUserEmail('');
         setUserName('');
         setUserPassword('');
+        toast.success("Sign in Successfull")
         navigate('/manage');
       })
       .catch((err) => {
@@ -39,6 +42,8 @@ function Signup({ setIsAuthenticated }) {
   };
 
   return (
+    <>
+    <ToastContainer/>
     <div className="signupContainer">
       <div className="card flex justify-content-center">
         <Button
@@ -113,6 +118,8 @@ function Signup({ setIsAuthenticated }) {
         </Dialog>
       </div>
     </div>
+    </>
+    
   );
 }
 

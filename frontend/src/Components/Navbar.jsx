@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import Login from "./Login";
 import Signup from "./Signup";
 import logo from '../images/logo.png'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function Navabr() {
+export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate()
 
@@ -17,11 +19,17 @@ export default function Navabr() {
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
     setIsAuthenticated(false);
+    toast.success("Logged Out");
     navigate("/")
 
   };
 
+  const handleUnauthorizedAccess = () => {
+    alert("You need to log in to access this page.");
+  };
+
   return (
+    <>
     <header className="flex items-center justify-between h-16 px-4 md:px-6 backdrop-blur-sm bg-white/80">
       <Link className="flex items-center gap-2" to="#">
       <img style={{width:"2vw"}} src={logo} alt="" />
@@ -49,6 +57,10 @@ export default function Navabr() {
         )}
       </div>
     </header>
+    <ToastContainer />
+    </>
+    
+    
   );
 }
 
