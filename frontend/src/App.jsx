@@ -8,6 +8,7 @@ import { PrimeReactProvider } from 'primereact/api'
 import Account from './pages/Account'
 import { Provider } from 'react-redux' // Import Provider from react-redux
 import store from './store/store' // Import your Redux store
+import Footer from './Components/Footer'
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
             <Route path="/account" element={<Account />} />
           </Routes>
         </Router>
+        <Footer/>
       </Provider>
     </PrimeReactProvider>
   )
