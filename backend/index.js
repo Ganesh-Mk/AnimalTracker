@@ -12,6 +12,12 @@ mongoose
   .then(() => console.log('mongoDB connected'))
   .catch((err) => console.log('mongoDB error'))
 
+app.get('/alluser', (req, res) => {
+  UsersModel.find()
+    .then((users) => res.send(users))
+    .catch((err) => res.send(err))
+})
+
 app.post('/register', (req, res) => {
   UsersModel.create(req.body)
     .then((user) => res.send(user))
@@ -23,7 +29,7 @@ app.post('/login', (req, res) => {
   UsersModel.findOne({ userEmail: userEmail }).then((user) => {
     if (user) {
       if (user.userPassword === userPassword) {
-        res.send("Success")
+        res.send('Success')
       } else {
         res.json('Password is incorrect')
       }

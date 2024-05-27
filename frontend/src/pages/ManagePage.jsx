@@ -6,12 +6,13 @@ import {
   Popup,
   Circle,
   Polyline,
+  useMapEvents,
   Rectangle,
   Polygon,
 } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import '../styles/TrackPage.css'
+import '../styles/ManagePage.css'
 import cat from '../images/cat.png'
 import dog from '../images/dog.png'
 import elephant from '../images/elephant.webp'
@@ -27,8 +28,8 @@ const ManagePage = () => {
     { name: 'Elephant', positions: [[16.1585, 74.8278]], icon: elephant },
   ])
   const [shape, setShape] = useState('circle')
-  const [mainBorder, setMainBorder] = useState(1000)
-  const [nearestBorder, setNearestBorder] = useState(1500)
+  const [mainBorder, setMainBorder] = useState(300)
+  const [nearestBorder, setNearestBorder] = useState(250)
   const [outsideMainBorder, setOutsideMainBorder] = useState([])
   const [nearMainBorder, setNearMainBorder] = useState([])
   const [distances, setDistances] = useState([])
@@ -57,7 +58,7 @@ const ManagePage = () => {
         ],
       }))
       setMarkers(newMarkers)
-    }, 100000)
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [markers])
@@ -170,15 +171,6 @@ const ManagePage = () => {
     ]
   }
 
-  const getTriangleBounds = (center, size) => {
-    const halfSize = size / 2 / 111320
-    return [
-      [center[0] - halfSize, center[1]],
-      [center[0], center[1] + halfSize],
-      [center[0] + halfSize, center[1]],
-    ]
-  }
-
   const checkIfOutsideBorder = (position, shape, center, size) => {
     const distance = calculateDistance(center, position)
     if (shape === 'circle') {
@@ -191,19 +183,6 @@ const ManagePage = () => {
         position[1] < southWest[1] ||
         position[1] > northEast[1]
       )
-    } else if (shape === 'triangle') {
-      const bounds = getTriangleBounds(center, size)
-      const [a, b, c] = bounds
-      const crossProduct1 =
-        (position[0] - a[0]) * (b[1] - a[1]) -
-        (position[1] - a[1]) * (b[0] - a[0])
-      const crossProduct2 =
-        (position[0] - b[0]) * (c[1] - b[1]) -
-        (position[1] - b[1]) * (c[0] - b[0])
-      const crossProduct3 =
-        (position[0] - c[0]) * (a[1] - c[1]) -
-        (position[1] - c[1]) * (a[0] - c[0])
-      return !(crossProduct1 > 0 && crossProduct2 > 0 && crossProduct3 > 0)
     }
     return false
   }
@@ -214,17 +193,33 @@ const ManagePage = () => {
     fillOpacity: 0.2,
   })
 
+  const handleMapClick = (e) => {
+    const { lat, lng } = e.latlng
+    console.log(`Latitude: ${lat}, Longitude: ${lng}`)
+    // Set latitude and longitude in state
+    setNewAnimalLat(lat)
+    setNewAnimalLng(lng)
+  }
+
+  const MapClickHandler = () => {
+    useMapEvents({
+      click: handleMapClick,
+    })
+    return null
+  }
+
   return (
     <div className="container">
       <MapContainer
         center={centerPosition}
         zoom={16}
-        style={{ height: '500px', width: '100%' }}
+        style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          attribution='&copy; <a href="https://www.esri.com">Esri</a> contributors'
         />
+        <MapClickHandler />
         {ownerPosition && (
           <Marker
             position={ownerPosition}
@@ -234,7 +229,11 @@ const ManagePage = () => {
           </Marker>
         )}
         {markers.map((animal, index) => (
-          <Polyline key={index} positions={animal.positions}>
+          <Polyline
+            key={index}
+            positions={animal.positions}
+            pathOptions={{ color: getLineColor(index) }}
+          >
             {animal.positions.map((position, markerIndex) => (
               <Marker
                 key={markerIndex}
@@ -286,11 +285,20 @@ const ManagePage = () => {
         <div className="controls">
           <label>
             Select Shape:
-            <select value={shape} onChange={(e) => setShape(e.target.value)}>
-              <option value="circle">Circle</option>
-              <option value="rectangle">Rectangle</option>
-              <option value="triangle">Triangle</option>
-            </select>
+            <div className="shape-buttons">
+              <button
+                className={shape === 'circle' ? 'active infoBtn' : 'infoBtn'}
+                onClick={() => setShape('circle')}
+              >
+                Circle
+              </button>
+              <button
+                className={shape === 'rectangle' ? 'active infoBtn' : 'infoBtn'}
+                onClick={() => setShape('rectangle')}
+              >
+                Square
+              </button>
+            </div>
           </label>
           <label>
             Main Border Size (meters): {mainBorder}
@@ -315,7 +323,7 @@ const ManagePage = () => {
             />
           </label>
         </div>
-        <div style={{ margin: '3vw 0' }}>
+        <div className="add-animal">
           <h4>Add New Animal</h4>
           <label>
             Name:
@@ -330,6 +338,7 @@ const ManagePage = () => {
             <input
               type="text"
               value={newAnimalLat}
+              placeholder="Click on map to set location"
               onChange={(e) => setNewAnimalLat(e.target.value)}
             />
           </label>
@@ -338,45 +347,38 @@ const ManagePage = () => {
             <input
               type="text"
               value={newAnimalLng}
+              placeholder="Click on map to set location"
               onChange={(e) => setNewAnimalLng(e.target.value)}
             />
           </label>
-          <label>
-            Select Animal Icon:
-            <select
-              value={selectedImage}
-              onChange={(e) => setSelectedImage(e.target.value)}
-            >
-              <option value={cat}>Cat</option>
-              <option value={dog}>Dog</option>
-              <option value={elephant}>Elephant</option>
-            </select>
-          </label>
-          <button onClick={handleAddAnimal}>Add Animal</button>
-        </div>
-        <div style={{ margin: '3vw 0' }}>
-          <h4>Animals Near Main Border</h4>
-          <ul>
-            {nearMainBorder.map((animal, index) => (
-              <li key={index}>
-                {animal.name} -{' '}
-                {animal.near ? 'Near Main Border' : 'Inside Main Border'} at{' '}
-                {animal.time} on {animal.date}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div style={{ margin: '3vw 0' }}>
-          <h4>Animals Outside Main Border</h4>
-          <ul>
-            {outsideMainBorder.map((animal, index) => (
-              <li key={index}>
-                {animal.name} -{' '}
-                {animal.outside ? 'Outside Main Border' : 'Inside Main Border'}{' '}
-                at {animal.time} on {animal.date}
-              </li>
-            ))}
-          </ul>
+          <label>Select Animal Icon:</label>
+          <div className="animal-icons">
+            <img
+              src={cat}
+              alt="Cat"
+              className={selectedImage === cat ? 'active' : ''}
+              onClick={() => setSelectedImage(cat)}
+            />
+            <img
+              src={dog}
+              alt="Dog"
+              className={selectedImage === dog ? 'active' : ''}
+              onClick={() => setSelectedImage(dog)}
+            />
+            <img
+              src={elephant}
+              alt="Elephant"
+              className={selectedImage === elephant ? 'active' : ''}
+              onClick={() => setSelectedImage(elephant)}
+            />
+          </div>
+          <button
+            className="infoBtn"
+            style={{ marginTop: '2vw' }}
+            onClick={handleAddAnimal}
+          >
+            Add Animal
+          </button>
         </div>
       </div>
     </div>
@@ -389,18 +391,6 @@ const ManagePage = () => {
   function getLineColor(index) {
     const colors = ['red', 'green', 'blue', 'purple', 'orange']
     return colors[index % colors.length]
-  }
-
-  function getMarkerIcon(animal, markerIndex) {
-    return L.icon({
-      iconUrl: animal.icon,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      className:
-        markerIndex === animal.positions.length - 1
-          ? 'marker-last'
-          : 'marker-previous',
-    })
   }
 }
 
