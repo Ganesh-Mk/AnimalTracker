@@ -12,6 +12,7 @@ const UsersSchema = new mongoose.Schema({
     },
   ],
   border: {
+    shape: String,
     mainBorder: Number,
     nearestBorder: Number,
   },

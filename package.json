@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "leaflet-fullscreen": "^1.0.2",
+    "screenfull": "^6.0.2"
+  }
+}

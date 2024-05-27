@@ -24,6 +24,7 @@ app.post('/addAnimal', (req, res) => {
     newAnimalName,
     nearestBorder,
     mainBorder,
+    shape,
     newAnimalLat,
     newAnimalLng,
   } = req.body
@@ -37,6 +38,7 @@ app.post('/addAnimal', (req, res) => {
       user.allAnimals.push(newAnimal)
       user.border.nearestBorder = nearestBorder
       user.border.mainBorder = mainBorder
+      user.border.shape = shape
       user.save()
       res.send(user)
     } else {
