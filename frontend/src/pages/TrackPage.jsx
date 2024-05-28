@@ -201,34 +201,13 @@ const TractPage = () => {
         </MapContainer>
       </div>
       <div className="info-container">
-        <div style={{ margin: '3vw 0' }}>
-          <label>
-            Circle Radius (meters): {circleRadius}
-            <input
-              type="range"
-              min="100"
-              max="5000"
-              value={circleRadius}
-              onChange={(e) => setCircleRadius(e.target.value)}
-              style={{ marginLeft: '10px' }}
-            />
-          </label>
-        </div>
-        <div className="distances-container">
-          <div className="owner-info">
-            <img src={owner} alt="Owner" className="owner-icon" />
-            <div className="distances-details">
-              {ownerPosition &&
-                distances.map((distance, index) => (
-                  <p key={index}>
-                    {distance.name}:{distance.distanceMeters} meters (
-                    {distance.distanceKm} km)
-                  </p>
-                ))}
-            </div>
-          </div>
-        </div>
+      
+        
         <div className="outside-circle-container">
+        <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
+          All Animals
+        </h4>
+          <input style={{marginBottom:"2vw"}} type="text" placeholder='Search animal'/>
           {outsideCircle.map((animal, index) => (
             <div
               key={index}
@@ -242,13 +221,12 @@ const TractPage = () => {
               />
               <div className="animal-details">
                 <p>
-                  <strong>{animal.name}</strong>
+                  <strong>Name : {animal.name}</strong>
                 </p>
                 <p>
-                  Position: {animal.position[0]}, {animal.position[1]}
-                </p>
-                <p>Time: {animal.time}</p>
-                <p>Date: {animal.date}</p>
+                Distance: {distances[index]?.distanceMeters || 'Calculating...'}{' '}
+                meters
+              </p>
               </div>
             </div>
           ))}
