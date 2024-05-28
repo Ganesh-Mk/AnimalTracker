@@ -9,6 +9,7 @@ import Account from './pages/Account'
 import { Provider } from 'react-redux' // Import Provider from react-redux
 import store from './store/store' // Import your Redux store
 import Footer from './Components/Footer'
+import Animaldetail from './pages/Animaldetail'
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
             <Route path="/track" element={<TractPage />} />
             <Route path="/manage" element={<ManagePage />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/animaldetail" element={<Animaldetail/>}/>
           </Routes>
         </Router>
         <Footer/>

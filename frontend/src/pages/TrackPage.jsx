@@ -7,6 +7,7 @@ import {
   Circle,
   Polyline,
 } from 'react-leaflet'
+import { setAnimalName, setAnimalLat, setAnimalLong, setAnimalMeter, setAnimalKm, setAnimalDate, setAnimalTime, setAnimalOutside } from '../store/animalSlice';
 import 'leaflet/dist/leaflet.css'
 import '../styles/TrackPage.css'
 import cat from '../images/cat.png'
@@ -14,6 +15,8 @@ import dog from '../images/dog.png'
 import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png' // Add an image for the owner
 import '../styles/CustomMarker.css' // Import CSS file for custom marker styles
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom';
 
 const TractPage = () => {
   const [centerPosition, setCenterPosition] = useState([16.1622, 74.8298]) // Initial center position [latitude, longitude]
@@ -29,7 +32,8 @@ const TractPage = () => {
   const [circleRadius, setCircleRadius] = useState(1000) // Initial circle radius in meters
   const [outsideCircle, setOutsideCircle] = useState([]) // Track animals outside the circle
   const [distances, setDistances] = useState([]) // Track distances between owner and animals
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     // // Request user's location
     // navigator.geolocation.getCurrentPosition(
@@ -56,7 +60,7 @@ const TractPage = () => {
         ],
       ])
       setMarkers(newMarkers)
-    }, 100000)
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [markers])
@@ -118,6 +122,26 @@ const TractPage = () => {
     fillColor: 'lightblue', // Color of the circle fill
     fillOpacity: 0.5, // Opacity of the circle fill
   }
+
+  const handleAnimalClick = (animal) => {
+    const { name, position, time, date, outside} = animal;
+    const animalDistances = distances.find((dist) => dist.name === name);
+  
+    const distanceMeters = animalDistances ? animalDistances.distanceMeters : null;
+    const distanceKm = animalDistances ? animalDistances.distanceKm : null;
+
+    dispatch(setAnimalName(name));
+    dispatch(setAnimalLat(position[0]));
+    dispatch(setAnimalLong(position[1]));
+    dispatch(setAnimalMeter(distanceMeters));
+    dispatch(setAnimalKm(distanceKm));
+    dispatch(setAnimalDate(date));
+    dispatch(setAnimalTime(time));
+    dispatch(setAnimalOutside(outside))
+
+    console.log(animal, distanceMeters, distanceKm, outside);
+    navigate('/animaldetail')
+  };
 
   return (
     <div className="container">
@@ -197,7 +221,7 @@ const TractPage = () => {
               {ownerPosition &&
                 distances.map((distance, index) => (
                   <p key={index}>
-                    {distance.name}: {distance.distanceMeters} meters (
+                    {distance.name}:{distance.distanceMeters} meters (
                     {distance.distanceKm} km)
                   </p>
                 ))}
@@ -209,6 +233,7 @@ const TractPage = () => {
             <div
               key={index}
               className={`animal-info ${animal.outside ? 'outside' : ''}`}
+              onClick={() => handleAnimalClick(animal)}
             >
               <img
                 src={animal.icon}
