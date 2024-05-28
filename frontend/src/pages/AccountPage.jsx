@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-const Account = () => {
+const AccountPage = () => {
   const userObj = useSelector((state) => state.user)
 
   const [name, setName] = useState('-')
@@ -23,4 +23,4 @@ const Account = () => {
   )
 }
 
-export default Account
+export default AccountPage
