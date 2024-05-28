@@ -19,15 +19,23 @@ import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
+import {
+  setAnimalName,
+  setAnimalLat,
+  setAnimalLong,
+  setAnimalMeter,
+  setAnimalKm,
+  setAnimalDate,
+  setAnimalTime,
+  setAnimalRest,
+  setAnimalWalk,
+  setAnimalOutside,
+} from '../store/animalSlice'
 
 const ManagePage = () => {
   const [centerPosition, setCenterPosition] = useState([16.1622, 74.8298])
   const [ownerPosition, setOwnerPosition] = useState(null)
-  const [markers, setMarkers] = useState([
-    { name: 'Dog', positions: [[16.1622, 74.8298]], icon: dog },
-    { name: 'Cat', positions: [[16.1605, 74.8323]], icon: cat },
-    { name: 'Elephant', positions: [[16.1585, 74.8278]], icon: elephant },
-  ])
+  const [markers, setMarkers] = useState([])
   const [shape, setShape] = useState('circle')
   const [mainBorder, setMainBorder] = useState(300)
   const [nearestBorder, setNearestBorder] = useState(250)
@@ -151,6 +159,7 @@ const ManagePage = () => {
         positions: [[parseFloat(newAnimalLat), parseFloat(newAnimalLng)]],
         icon: selectedImage,
       }
+
       setMarkers([...markers, newAnimal])
       setNewAnimalName('')
       setNewAnimalLat('')
@@ -178,14 +187,36 @@ const ManagePage = () => {
   }
 
   useEffect(() => {
-    let border = JSON.parse(localStorage.getItem('border'))
+    let border = localStorage.getItem('border')
+
+    if (border) {
+      try {
+        border = JSON.parse(border)
+      } catch (e) {
+        console.error('Error parsing JSON: ', e)
+        border = null
+      }
+    } else {
+      border = null
+    }
     if (border) {
       setMainBorder(border.mainBorder)
       setNearestBorder(border.nearestBorder)
       setShape(border.shape)
     }
 
-    let allAnimals = JSON.parse(localStorage.getItem('allAnimals'))
+    let allAnimals = localStorage.getItem('allAnimals')
+
+    if (allAnimals) {
+      try {
+        allAnimals = JSON.parse(allAnimals)
+      } catch (e) {
+        console.error('Error parsing JSON: ', e)
+        allAnimals = null
+      }
+    } else {
+      allAnimals = null
+    }
     console.log('allAnimals: ', allAnimals)
     if (allAnimals) {
       setMarkers(allAnimals)

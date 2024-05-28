@@ -62,7 +62,7 @@ function AnimalDetails() {
         </div>
       </div>
       <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-white bg-white rounded-lg shadow-md p-6 md:p-8">
+        <div className="rounded-lg shadow-md p-6 md:p-8">
           <div className="grid gap-4">
             <div className="grid gap-2">
               <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -75,8 +75,8 @@ function AnimalDetails() {
                 Position
               </span>
               <p>
-                Latitude: {animalData.animalLat}, Longitude:{' '}
-                {animalData.animalLong}
+                Latitude: {animalData.animalLat}, <br />
+                Longitude: {animalData.animalLong}
               </p>
             </div>
             <div className="grid gap-2">
