@@ -54,7 +54,7 @@ const ManagePage = () => {
   const [selectedImage, setSelectedImage] = useState(cat)
 
   useEffect(() => {
-    setOwnerPosition([16.1652, 74.8298])
+    setOwnerPosition([16.1612, 74.8298])
   }, [])
 
   useEffect(() => {
