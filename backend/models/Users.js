@@ -15,6 +15,7 @@ const UsersSchema = new mongoose.Schema({
     shape: String,
     mainBorder: Number,
     nearestBorder: Number,
+    centerPosition: [Number],
   },
 })
 

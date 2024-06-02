@@ -19,6 +19,8 @@ import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import {
   setAnimalName,
   setAnimalLat,
@@ -33,15 +35,18 @@ import {
 } from '../store/animalSlice'
 
 const ManagePage = () => {
-  const [centerPosition, setCenterPosition] = useState([16.1622, 74.8298])
   const [ownerPosition, setOwnerPosition] = useState(null)
   const [markers, setMarkers] = useState([])
   const [shape, setShape] = useState('circle')
-  const [mainBorder, setMainBorder] = useState(300)
-  const [nearestBorder, setNearestBorder] = useState(250)
+  const [mainBorder, setMainBorder] = useState(750)
+  const [nearestBorder, setNearestBorder] = useState(600)
   const [outsideMainBorder, setOutsideMainBorder] = useState([])
   const [nearMainBorder, setNearMainBorder] = useState([])
   const [distances, setDistances] = useState([])
+  const [centerPosition, setCenterPosition] = useState([
+    15.892826703895803,
+    74.53231051009787,
+  ])
 
   const [newAnimalName, setNewAnimalName] = useState('')
   const [newAnimalLat, setNewAnimalLat] = useState('')
@@ -177,11 +182,29 @@ const ManagePage = () => {
         newAnimalName,
       })
       .then((res) => {
-        console.log(res.data)
         localStorage.setItem('allAnimals', JSON.stringify(res.data.allAnimals))
         localStorage.setItem('border', JSON.stringify(res.data.border))
       })
       .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  const handleBorder = () => {
+    axios
+      .post('http://localhost:3001/setBorderPosition', {
+        email: localStorage.getItem('email'),
+        shape,
+        mainBorder,
+        nearestBorder,
+        centerPosition,
+      })
+      .then((res) => {
+        toast.success('Successfully set border position!')
+        localStorage.setItem('border', JSON.stringify(res.data.border))
+      })
+      .catch((err) => {
+        toast.error('Failed to set border position!')
         console.log(err)
       })
   }
@@ -203,6 +226,8 @@ const ManagePage = () => {
       setMainBorder(border.mainBorder)
       setNearestBorder(border.nearestBorder)
       setShape(border.shape)
+      console.log(border.centerPosition)
+      setCenterPosition(border.centerPosition)
     }
 
     let allAnimals = localStorage.getItem('allAnimals')
@@ -217,12 +242,9 @@ const ManagePage = () => {
     } else {
       allAnimals = null
     }
-    console.log('allAnimals: ', allAnimals)
     if (allAnimals) {
       setMarkers(allAnimals)
     }
-
-    console.log('markers: ', markers)
   }, [])
 
   const getCircleOptions = (borderType) => ({
@@ -267,18 +289,26 @@ const ManagePage = () => {
     setNewAnimalLng(lng)
   }
 
+  const handleMapRightClick = (e) => {
+    const { lat, lng } = e.latlng
+    setCenterPosition([lat, lng])
+  }
+
   const MapClickHandler = () => {
     useMapEvents({
       click: handleMapClick,
+      contextmenu: handleMapRightClick,
     })
     return null
   }
 
   return (
     <div className="container">
+      <ToastContainer />
+
       <MapContainer
-        center={centerPosition}
-        zoom={16}
+        center={[centerPosition[0], centerPosition[1]]}
+        zoom={15}
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
@@ -376,7 +406,14 @@ const ManagePage = () => {
               min="10"
               max="10000"
               value={mainBorder}
-              onChange={(e) => setMainBorder(e.target.value)}
+              onChange={(e) => {
+                const newValue = parseInt(e.target.value, 10)
+                setMainBorder(newValue)
+
+                if (newValue < nearestBorder) {
+                  setNearestBorder(newValue - 1)
+                }
+              }}
               style={{ marginLeft: '10px' }}
             />
           </label>
@@ -387,11 +424,45 @@ const ManagePage = () => {
               min="10"
               max="10000"
               value={nearestBorder}
-              onChange={(e) => setNearestBorder(e.target.value)}
+              onChange={(e) => {
+                const newValue = parseInt(e.target.value, 10)
+                if (newValue < mainBorder) {
+                  setNearestBorder(newValue)
+                } else {
+                  setNearestBorder(mainBorder - 1)
+                }
+              }}
               style={{ marginLeft: '10px' }}
             />
           </label>
+          <label>
+            <h2 align="center"> Right click on map to set location</h2>
+            <input
+              type="text"
+              value={centerPosition[0]}
+              placeholder="Right click on map to set latitude"
+              readOnly
+              style={{ backgroundColor: 'rgb(234 234 234)' }}
+            />
+          </label>
+          <label>
+            <input
+              type="text"
+              value={centerPosition[1]}
+              placeholder="Right click on map to set longitude"
+              readOnly
+              style={{ backgroundColor: 'rgb(234 234 234)' }}
+            />
+          </label>
+          <button
+            className="infoBtn"
+            style={{ marginTop: '2vw' }}
+            onClick={handleBorder}
+          >
+            Set Border
+          </button>
         </div>
+
         <div className="seperator"></div>
         <div className="add-animal">
           <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">

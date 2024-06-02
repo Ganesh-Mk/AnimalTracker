@@ -12,7 +12,6 @@ export default function Navbar() {
 
   useEffect(() => {
     const authStatus = localStorage.getItem('isAuthenticated')
-    console.log(authStatus)
     if (authStatus === 'true') setIsAuthenticated(true)
   }, [])
 

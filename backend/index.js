@@ -19,15 +19,7 @@ app.get('/alluser', (req, res) => {
 })
 
 app.post('/addAnimal', (req, res) => {
-  const {
-    email,
-    newAnimalName,
-    nearestBorder,
-    mainBorder,
-    shape,
-    newAnimalLat,
-    newAnimalLng,
-  } = req.body
+  const { email, newAnimalName, newAnimalLat, newAnimalLng } = req.body
   UsersModel.findOne({ userEmail: email }).then((user) => {
     if (user) {
       const newAnimal = {
@@ -36,9 +28,6 @@ app.post('/addAnimal', (req, res) => {
         icon: 'https://cdn-icons-png.flaticon.com/512/147/147144.png',
       }
       user.allAnimals.push(newAnimal)
-      user.border.nearestBorder = nearestBorder
-      user.border.mainBorder = mainBorder
-      user.border.shape = shape
       user.save()
       res.send(user)
     } else {
@@ -47,6 +36,21 @@ app.post('/addAnimal', (req, res) => {
   })
 })
 
+app.post('/setBorderPosition', (req, res) => {
+  const { email, shape, mainBorder, nearestBorder, centerPosition } = req.body
+  UsersModel.findOne({ userEmail: email }).then((user) => {
+    if (user) {
+      user.border.shape = shape
+      user.border.mainBorder = mainBorder
+      user.border.nearestBorder = nearestBorder
+      user.border.centerPosition = centerPosition
+      user.save()
+      res.send(user)
+    } else {
+      res.json('User not exist')
+    }
+  })
+})
 app.post('/register', (req, res) => {
   UsersModel.create(req.body)
     .then((user) => res.send(user))
