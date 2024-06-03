@@ -1,5 +1,10 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import TractPage from './pages/TrackPage'
 import ManagePage from './pages/ManagePage'
@@ -26,11 +31,24 @@ const App = () => {
               <Route path="/account" element={<AccountPage />} />
               <Route path="/animaldetail" element={<AnimalDetails />} />
             </Routes>
+            <FooterWithConditionalRendering />
           </Router>
-          <Footer />
         </Provider>
       </ChakraProvider>
     </PrimeReactProvider>
   )
 }
+
+const FooterWithConditionalRendering = () => {
+  const location = useLocation()
+
+  // Check if the current path is '/track' or '/manage'
+  const shouldRenderFooter = () => {
+    const { pathname } = location
+    return !(pathname === '/track' || pathname === '/manage')
+  }
+
+  return shouldRenderFooter() ? <Footer /> : null
+}
+
 export default App

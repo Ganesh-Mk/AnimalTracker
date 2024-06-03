@@ -25,6 +25,32 @@
   background-color: #f9f9f9;
 }
 
+.ownerDetailsDiv {
+  display: grid;
+  grid-template-columns: 0.8fr 3fr;
+  place-items: left;
+}
+
+.ownerLeft {
+  display: grid;
+  place-items: center;
+}
+
+.ownerImageDiv {
+  display: grid;
+  place-items: center;
+}
+
+.ownerUploadImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1vw;
+}
+.ownerImg {
+  width: 10vw;
+}
+
 .controls,
 .add-animal,
 .animal-lists {

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react'
 import {
   MapContainer,
@@ -572,35 +571,25 @@ const ManagePage = () => {
                 <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
                   Owner Details
                 </h4>
+                <div className="ownerImageDiv">
+                  <img src={owner} alt="Owner" className="ownerImg" />
+                </div>
+                <div className="ownerDetailsDiv">
+                  <div className="ownerLeft">
+                    <p>Name: </p>
+                  </div>
+                  <div className="ownerRight">
+                    <label className="centerInputLabel">
+                      <input
+                        type="text"
+                        value={ownerName}
+                        placeholder="Enter Name"
+                        onChange={(e) => setOwnerName(e.target.value)}
+                      />
+                    </label>
+                  </div>
+                </div>
 
-                <label className="centerInputLabel">
-                  Name:
-                  <input
-                    type="text"
-                    value={ownerName}
-                    placeholder="Enter Name"
-                    onChange={(e) => setOwnerName(e.target.value)}
-                  />
-                </label>
-
-                <label className="centerInputLabel">
-                  Email:
-                  <input
-                    type="text"
-                    value={ownerEmail}
-                    placeholder="Enter Name"
-                    onChange={(e) => setOwnerEmail(e.target.value)}
-                  />
-                </label>
-                <label className="centerInputLabel">
-                  Password:
-                  <input
-                    type="text" // password
-                    value={ownerPassword}
-                    placeholder="Enter Name"
-                    onChange={(e) => setOwnerPassword(e.target.value)}
-                  />
-                </label>
                 <h2 align="center" style={{ marginTop: '2vw' }}>
                   Click on map to set owner location
                 </h2>
@@ -625,28 +614,9 @@ const ManagePage = () => {
                   />
                 </div>
 
-                <div className="centerOwnerLabelLogo">
+                <div className="ownerUploadImage">
                   <label>Select Owner Image:</label>
-                  <div className="animal-icons">
-                    <img
-                      src={owner}
-                      alt="Cat"
-                      className={selectedImage === cat ? 'active' : ''}
-                      onClick={() => setSelectedImage(cat)}
-                    />
-                    <img
-                      src={owner}
-                      alt="Cat"
-                      className={selectedImage === cat ? 'active' : ''}
-                      onClick={() => setSelectedImage(cat)}
-                    />
-                    <img
-                      src={owner}
-                      alt="Cat"
-                      className={selectedImage === cat ? 'active' : ''}
-                      onClick={() => setSelectedImage(cat)}
-                    />
-                  </div>
+                  <input type="file" name="image" id="" />
                 </div>
 
                 <button
