@@ -51,6 +51,21 @@ app.post('/setBorderPosition', (req, res) => {
     }
   })
 })
+
+app.post('/setOwner', (req, res) => {
+  console.log('came here: ', req.body)
+  const { email, ownerLocation, ownerName } = req.body
+  UsersModel.findOne({ userEmail: email }).then((user) => {
+    if (user) {
+      user.userLocation = ownerLocation
+      user.userName = ownerName
+      user.save()
+      res.send(user)
+    } else {
+      res.json('User not exist')
+    }
+  })
+})
 app.post('/register', (req, res) => {
   UsersModel.create(req.body)
     .then((user) => res.send(user))
