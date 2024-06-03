@@ -53,7 +53,6 @@ app.post('/setBorderPosition', (req, res) => {
 })
 
 app.post('/setOwner', (req, res) => {
-  console.log('came here: ', req.body)
   const { email, ownerLocation, ownerName } = req.body
   UsersModel.findOne({ userEmail: email }).then((user) => {
     if (user) {

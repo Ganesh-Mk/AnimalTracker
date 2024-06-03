@@ -20,8 +20,8 @@ import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
-// import { ToastContainer, toast } from 'react-toastify'
-// import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import {
   setAnimalName,
   setAnimalLat,
@@ -211,11 +211,11 @@ const ManagePage = () => {
         centerPosition,
       })
       .then((res) => {
-        // toast.success('Successfully set border position!')
+        toast.success('Successfully set border position!')
         localStorage.setItem('border', JSON.stringify(res.data.border))
       })
       .catch((err) => {
-        // toast.error('Failed to set border position!')
+        toast.error('Failed to set border position!')
         console.log(err)
       })
   }
@@ -328,21 +328,21 @@ const ManagePage = () => {
         ownerName,
       })
       .then((res) => {
-        // toast.success('Successfully set owner location!')
+        toast.success('Successfully set owner location!')
         console.log(res.data)
         localStorage.setItem('name', res.data.userName)
         localStorage.setItem('ownerLocation', res.data.userLocation)
         setOwnerLocation(res.data.userLocation)
       })
       .catch((err) => {
-        // toast.error('Failed to set owner location!')
+        toast.error('Failed to set owner location!')
         console.log(err)
       })
   }
 
   return (
     <div className="container">
-      {/* <ToastContainer /> */}
+      <ToastContainer />
 
       <MapContainer
         center={[centerPosition[0], centerPosition[1]]}
