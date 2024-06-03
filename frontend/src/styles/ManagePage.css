@@ -16,9 +16,8 @@
 }
 
 .info {
-  width: 70%;
+  width: 100%;
   overflow: scroll;
-  margin: 0 auto;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;

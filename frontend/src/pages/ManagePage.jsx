@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react'
 import {
   MapContainer,
@@ -11,6 +12,7 @@ import {
   Polygon,
 } from 'react-leaflet'
 import L from 'leaflet'
+import { Tabs, Tab, TabPanel, TabPanels, TabList } from '@chakra-ui/react'
 import 'leaflet/dist/leaflet.css'
 import '../styles/ManagePage.css'
 import cat from '../images/cat.png'
@@ -19,8 +21,8 @@ import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+// import { ToastContainer, toast } from 'react-toastify'
+// import 'react-toastify/dist/ReactToastify.css'
 import {
   setAnimalName,
   setAnimalLat,
@@ -35,14 +37,23 @@ import {
 } from '../store/animalSlice'
 
 const ManagePage = () => {
-  const [ownerPosition, setOwnerPosition] = useState(null)
   const [markers, setMarkers] = useState([])
+  const [activeTab, setActiveTab] = useState(0)
   const [shape, setShape] = useState('circle')
   const [mainBorder, setMainBorder] = useState(750)
   const [nearestBorder, setNearestBorder] = useState(600)
   const [outsideMainBorder, setOutsideMainBorder] = useState([])
   const [nearMainBorder, setNearMainBorder] = useState([])
   const [distances, setDistances] = useState([])
+  const [ownerName, setOwnerName] = useState(localStorage.getItem('name'))
+  const [ownerLocation, setOwnerLocation] = useState([
+    15.893782329637874,
+    74.5314625373903,
+  ])
+  const [ownerEmail, setOwnerEmail] = useState(localStorage.getItem('email'))
+  const [ownerPassword, setOwnerPassword] = useState(
+    localStorage.getItem('password'),
+  )
   const [centerPosition, setCenterPosition] = useState([
     15.892826703895803,
     74.53231051009787,
@@ -54,7 +65,7 @@ const ManagePage = () => {
   const [selectedImage, setSelectedImage] = useState(cat)
 
   useEffect(() => {
-    setOwnerPosition([16.1612, 74.8298])
+    setOwnerLocation([ownerLocation[0], ownerLocation[1]])
   }, [])
 
   useEffect(() => {
@@ -84,8 +95,8 @@ const ManagePage = () => {
       const newDistances = markers.map((animal) => {
         const lastPosition = animal.positions[animal.positions.length - 1]
         const distanceToCenter = calculateDistance(centerPosition, lastPosition)
-        const distanceToOwner = ownerPosition
-          ? calculateDistance(ownerPosition, lastPosition)
+        const distanceToOwner = ownerLocation
+          ? calculateDistance(ownerLocation, lastPosition)
           : null
         const currentTime = new Date().toLocaleTimeString()
         const currentDate = new Date().toLocaleDateString()
@@ -138,7 +149,7 @@ const ManagePage = () => {
     }
 
     checkAnimalsBorders()
-  }, [markers, centerPosition, mainBorder, nearestBorder, ownerPosition, shape])
+  }, [markers, centerPosition, mainBorder, nearestBorder, ownerLocation, shape])
 
   const calculateDistance = (position1, position2) => {
     const [lat1, lng1] = position1
@@ -200,11 +211,11 @@ const ManagePage = () => {
         centerPosition,
       })
       .then((res) => {
-        toast.success('Successfully set border position!')
+        // toast.success('Successfully set border position!')
         localStorage.setItem('border', JSON.stringify(res.data.border))
       })
       .catch((err) => {
-        toast.error('Failed to set border position!')
+        // toast.error('Failed to set border position!')
         console.log(err)
       })
   }
@@ -226,7 +237,6 @@ const ManagePage = () => {
       setMainBorder(border.mainBorder)
       setNearestBorder(border.nearestBorder)
       setShape(border.shape)
-      console.log(border.centerPosition)
       setCenterPosition(border.centerPosition)
     }
 
@@ -285,40 +295,40 @@ const ManagePage = () => {
 
   const handleMapClick = (e) => {
     const { lat, lng } = e.latlng
-    setNewAnimalLat(lat)
-    setNewAnimalLng(lng)
-  }
 
-  const handleMapRightClick = (e) => {
-    const { lat, lng } = e.latlng
-    setCenterPosition([lat, lng])
+    if (activeTab === 0) {
+      setNewAnimalLat(lat)
+      setNewAnimalLng(lng)
+    } else if (activeTab === 1) {
+      setCenterPosition([lat, lng])
+    } else if (activeTab === 2) {
+      setOwnerLocation([lat, lng])
+    }
   }
 
   const MapClickHandler = () => {
     useMapEvents({
       click: handleMapClick,
-      contextmenu: handleMapRightClick,
     })
     return null
   }
-
   return (
     <div className="container">
-      <ToastContainer />
+      {/* <ToastContainer /> */}
 
       <MapContainer
         center={[centerPosition[0], centerPosition[1]]}
         zoom={15}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: '100%', width: '57%' }}
       >
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           attribution='&copy; <a href="https://www.esri.com">Esri</a> contributors'
         />
         <MapClickHandler />
-        {ownerPosition && (
+        {ownerLocation && (
           <Marker
-            position={ownerPosition}
+            position={ownerLocation}
             icon={L.icon({ iconUrl: owner, iconSize: [32, 32] })}
           >
             <Popup>Owner's Location</Popup>
@@ -377,155 +387,280 @@ const ManagePage = () => {
           </>
         )}
       </MapContainer>
-      <div className="info">
-        <div className="controls">
-          <label>
-            <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
-              Select Border Shape
-            </h4>
+      <Tabs
+        variant="soft-rounded"
+        colorScheme="green"
+        onChange={(index) => setActiveTab(index)}
+      >
+        <TabList style={{ marginLeft: '2vw' }}>
+          <Tab>Animals</Tab>
+          <Tab>Borders</Tab>
+          <Tab>Owner</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <div className="info">
+              <div className="add-animal">
+                <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
+                  Add New Animal Details
+                </h4>
 
-            <div className="shape-buttons">
-              <button
-                className={shape === 'circle' ? 'active infoBtn' : 'infoBtn'}
-                onClick={() => setShape('circle')}
-              >
-                Circle
-              </button>
-              <button
-                className={shape === 'rectangle' ? 'active infoBtn' : 'infoBtn'}
-                onClick={() => setShape('rectangle')}
-              >
-                Square
-              </button>
+                <label>
+                  Name:
+                  <input
+                    type="text"
+                    value={newAnimalName}
+                    placeholder="Unique nickname of animal"
+                    onChange={(e) => setNewAnimalName(e.target.value)}
+                  />
+                </label>
+                <h2 align="center" style={{ marginTop: '2vw' }}>
+                  Click on map to set animal location
+                </h2>
+                <div
+                  style={{ display: 'flex', margin: '0 0 2vw 0', gap: '1vw' }}
+                >
+                  <input
+                    type="text"
+                    value={newAnimalLat}
+                    readOnly
+                    style={{ backgroundColor: 'rgb(234 234 234)' }}
+                    placeholder="Latitude location"
+                    onChange={(e) => setNewAnimalLat(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={newAnimalLng}
+                    readOnly
+                    style={{ backgroundColor: 'rgb(234 234 234)' }}
+                    placeholder="Longitude location"
+                    onChange={(e) => setNewAnimalLng(e.target.value)}
+                  />
+                </div>
+
+                <label>Select Animal Icon:</label>
+                <div className="animal-icons">
+                  <img
+                    src={cat}
+                    alt="Cat"
+                    className={selectedImage === cat ? 'active' : ''}
+                    onClick={() => setSelectedImage(cat)}
+                  />
+                  <img
+                    src={dog}
+                    alt="Dog"
+                    className={selectedImage === dog ? 'active' : ''}
+                    onClick={() => setSelectedImage(dog)}
+                  />
+                  <img
+                    src={elephant}
+                    alt="Elephant"
+                    className={selectedImage === elephant ? 'active' : ''}
+                    onClick={() => setSelectedImage(elephant)}
+                  />
+                </div>
+                <button
+                  className="infoBtn"
+                  style={{ marginTop: '2vw' }}
+                  onClick={handleAddAnimal}
+                >
+                  Add Animal
+                </button>
+              </div>
             </div>
-          </label>
-          <label>
-            Main Border Size (meters): {mainBorder}
-            <input
-              type="range"
-              min="10"
-              max="10000"
-              value={mainBorder}
-              onChange={(e) => {
-                const newValue = parseInt(e.target.value, 10)
-                setMainBorder(newValue)
+          </TabPanel>
+          <TabPanel>
+            <div className="info">
+              <div className="controls">
+                <label>
+                  <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
+                    Manage Border
+                  </h4>
 
-                if (newValue < nearestBorder) {
-                  setNearestBorder(newValue - 1)
-                }
-              }}
-              style={{ marginLeft: '10px' }}
-            />
-          </label>
-          <label>
-            Nearest Border Size (meters): {nearestBorder}
-            <input
-              type="range"
-              min="10"
-              max="10000"
-              value={nearestBorder}
-              onChange={(e) => {
-                const newValue = parseInt(e.target.value, 10)
-                if (newValue < mainBorder) {
-                  setNearestBorder(newValue)
-                } else {
-                  setNearestBorder(mainBorder - 1)
-                }
-              }}
-              style={{ marginLeft: '10px' }}
-            />
-          </label>
-          <label>
-            <h2 align="center"> Right click on map to set location</h2>
-            <input
-              type="text"
-              value={centerPosition[0]}
-              placeholder="Right click on map to set latitude"
-              readOnly
-              style={{ backgroundColor: 'rgb(234 234 234)' }}
-            />
-          </label>
-          <label>
-            <input
-              type="text"
-              value={centerPosition[1]}
-              placeholder="Right click on map to set longitude"
-              readOnly
-              style={{ backgroundColor: 'rgb(234 234 234)' }}
-            />
-          </label>
-          <button
-            className="infoBtn"
-            style={{ marginTop: '2vw' }}
-            onClick={handleBorder}
-          >
-            Set Border
-          </button>
-        </div>
+                  <div className="shape-buttons">
+                    <button
+                      className={
+                        shape === 'circle' ? 'active infoBtn' : 'infoBtn'
+                      }
+                      onClick={() => setShape('circle')}
+                    >
+                      Circle
+                    </button>
+                    <button
+                      className={
+                        shape === 'rectangle' ? 'active infoBtn' : 'infoBtn'
+                      }
+                      onClick={() => setShape('rectangle')}
+                    >
+                      Square
+                    </button>
+                  </div>
+                </label>
+                <label>
+                  Main Border Size (meters): {mainBorder}
+                  <input
+                    type="range"
+                    min="10"
+                    max="10000"
+                    value={mainBorder}
+                    onChange={(e) => {
+                      const newValue = parseInt(e.target.value, 10)
+                      setMainBorder(newValue)
 
-        <div className="seperator"></div>
-        <div className="add-animal">
-          <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
-            Add New Animal Details
-          </h4>
+                      if (newValue < nearestBorder) {
+                        setNearestBorder(newValue - 1)
+                      }
+                    }}
+                    style={{ marginLeft: '10px' }}
+                  />
+                </label>
+                <label>
+                  Nearest Border Size (meters): {nearestBorder}
+                  <input
+                    type="range"
+                    min="10"
+                    max="10000"
+                    value={nearestBorder}
+                    onChange={(e) => {
+                      const newValue = parseInt(e.target.value, 10)
+                      if (newValue < mainBorder) {
+                        setNearestBorder(newValue)
+                      } else {
+                        setNearestBorder(mainBorder - 1)
+                      }
+                    }}
+                    style={{ marginLeft: '10px' }}
+                  />
+                </label>
+                <h2 align="center" style={{ marginTop: '2vw' }}>
+                  {' '}
+                  Click on map to set border center position
+                </h2>
+                <div
+                  style={{ display: 'flex', margin: '0 0 2vw 0', gap: '1vw' }}
+                >
+                  <input
+                    type="text"
+                    value={centerPosition[0]}
+                    placeholder="Right click on map to set latitude"
+                    readOnly
+                    style={{ backgroundColor: 'rgb(234 234 234)' }}
+                  />
 
-          <label>
-            Name:
-            <input
-              type="text"
-              value={newAnimalName}
-              placeholder="Unique nickname of animal"
-              onChange={(e) => setNewAnimalName(e.target.value)}
-            />
-          </label>
-          <label>
-            Latitude:
-            <input
-              type="text"
-              value={newAnimalLat}
-              placeholder="Click on map to set location"
-              onChange={(e) => setNewAnimalLat(e.target.value)}
-            />
-          </label>
-          <label>
-            Longitude:
-            <input
-              type="text"
-              value={newAnimalLng}
-              placeholder="Click on map to set location"
-              onChange={(e) => setNewAnimalLng(e.target.value)}
-            />
-          </label>
-          <label>Select Animal Icon:</label>
-          <div className="animal-icons">
-            <img
-              src={cat}
-              alt="Cat"
-              className={selectedImage === cat ? 'active' : ''}
-              onClick={() => setSelectedImage(cat)}
-            />
-            <img
-              src={dog}
-              alt="Dog"
-              className={selectedImage === dog ? 'active' : ''}
-              onClick={() => setSelectedImage(dog)}
-            />
-            <img
-              src={elephant}
-              alt="Elephant"
-              className={selectedImage === elephant ? 'active' : ''}
-              onClick={() => setSelectedImage(elephant)}
-            />
-          </div>
-          <button
-            className="infoBtn"
-            style={{ marginTop: '2vw' }}
-            onClick={handleAddAnimal}
-          >
-            Add Animal
-          </button>
-        </div>
-      </div>
+                  <input
+                    type="text"
+                    value={centerPosition[1]}
+                    placeholder="Right click on map to set longitude"
+                    readOnly
+                    style={{ backgroundColor: 'rgb(234 234 234)' }}
+                  />
+                </div>
+
+                <button
+                  className="infoBtn"
+                  style={{ marginTop: '2vw' }}
+                  onClick={handleBorder}
+                >
+                  Set Border
+                </button>
+              </div>
+            </div>
+          </TabPanel>
+          <TabPanel>
+            <div className="info">
+              <div className="add-animal">
+                <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
+                  Owner Details
+                </h4>
+
+                <label className="centerInputLabel">
+                  Name:
+                  <input
+                    type="text"
+                    value={ownerName}
+                    placeholder="Enter Name"
+                    onChange={(e) => setOwnerName(e.target.value)}
+                  />
+                </label>
+
+                <label className="centerInputLabel">
+                  Email:
+                  <input
+                    type="text"
+                    value={ownerEmail}
+                    placeholder="Enter Name"
+                    onChange={(e) => setOwnerEmail(e.target.value)}
+                  />
+                </label>
+                <label className="centerInputLabel">
+                  Password:
+                  <input
+                    type="text" // password
+                    value={ownerPassword}
+                    placeholder="Enter Name"
+                    onChange={(e) => setOwnerPassword(e.target.value)}
+                  />
+                </label>
+                <h2 align="center" style={{ marginTop: '2vw' }}>
+                  Click on map to set owner location
+                </h2>
+                <div
+                  style={{ display: 'flex', margin: '0 0 2vw 0', gap: '1vw' }}
+                >
+                  <input
+                    type="text"
+                    value={ownerLocation[0]}
+                    readOnly
+                    style={{ backgroundColor: 'rgb(234 234 234)' }}
+                    placeholder="Latitude location"
+                    onChange={(e) => setNewAnimalLat(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={ownerLocation[1]}
+                    readOnly
+                    style={{ backgroundColor: 'rgb(234 234 234)' }}
+                    placeholder="Longitude location"
+                    onChange={(e) => setNewAnimalLng(e.target.value)}
+                  />
+                </div>
+
+                <div className="centerOwnerLabelLogo">
+                  <label>Select Owner Image:</label>
+                  <div className="animal-icons">
+                    <img
+                      src={owner}
+                      alt="Cat"
+                      className={selectedImage === cat ? 'active' : ''}
+                      onClick={() => setSelectedImage(cat)}
+                    />
+                    <img
+                      src={owner}
+                      alt="Cat"
+                      className={selectedImage === cat ? 'active' : ''}
+                      onClick={() => setSelectedImage(cat)}
+                    />
+                    <img
+                      src={owner}
+                      alt="Cat"
+                      className={selectedImage === cat ? 'active' : ''}
+                      onClick={() => setSelectedImage(cat)}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  className="infoBtn"
+                  style={{ marginTop: '2vw' }}
+                  onClick={handleAddAnimal}
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </div>
   )
 
