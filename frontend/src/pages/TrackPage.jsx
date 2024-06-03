@@ -10,9 +10,18 @@ import {
   Rectangle,
   Polygon,
 } from 'react-leaflet'
+import Map from '../Components/Map'
 import L from 'leaflet'
 import { useNavigate } from 'react-router-dom'
-
+import {
+  setCenterPositionSlice,
+  setOwnerLocationSlice,
+  setMarkersSlice,
+  setShapeSlice,
+  // setOwnerSlice,
+  setNearestBorderSlice,
+  setMainBorderSlice,
+} from '../store/mapSlice'
 import 'leaflet/dist/leaflet.css'
 import '../styles/ManagePage.css'
 import cat from '../images/cat.png'
@@ -38,9 +47,15 @@ import { useDispatch } from 'react-redux'
 const ManagePage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [ownerLocation, setOwnerLocation] = useState([
+    15.893782329637874,
+    74.5314625373903,
+  ])
   const [centerPosition, setCenterPosition] = useState([16.1622, 74.8298])
   const [ownerPosition, setOwnerPosition] = useState(null)
   const [markers, setMarkers] = useState([])
+  const [ownerName, setOwnerName] = useState(localStorage.getItem('name'))
+
   const [shape, setShape] = useState('circle')
   const [mainBorder, setMainBorder] = useState(300)
   const [nearestBorder, setNearestBorder] = useState(250)
@@ -179,6 +194,7 @@ const ManagePage = () => {
     return R * c
   }
 
+  // Reload
   useEffect(() => {
     let border = localStorage.getItem('border')
 
@@ -195,7 +211,22 @@ const ManagePage = () => {
     if (border) {
       setMainBorder(border.mainBorder)
       setNearestBorder(border.nearestBorder)
+      dispatch(setMainBorderSlice(border.mainBorder))
+      dispatch(setNearestBorderSlice(border.nearestBorder))
       setShape(border.shape)
+      dispatch(setShapeSlice(border.shape))
+      setCenterPosition(border.centerPosition)
+      dispatch(setCenterPositionSlice(border.centerPosition))
+      setOwnerName(localStorage.getItem('name'))
+      let ownerLoc = localStorage.getItem('ownerLocation').split(',')
+      if (ownerLoc.length === 2) {
+        setOwnerLocation(localStorage.getItem('ownerLocation').split(','))
+        dispatch(
+          setOwnerLocationSlice(
+            localStorage.getItem('ownerLocation').split(','),
+          ),
+        )
+      }
     }
 
     let allAnimals = localStorage.getItem('allAnimals')
@@ -210,12 +241,10 @@ const ManagePage = () => {
     } else {
       allAnimals = null
     }
-    console.log('allAnimals: ', allAnimals)
     if (allAnimals) {
       setMarkers(allAnimals)
+      dispatch(setMarkersSlice(allAnimals))
     }
-
-    console.log('markers: ', markers)
   }, [])
 
   const getCircleOptions = (borderType) => ({
@@ -269,77 +298,7 @@ const ManagePage = () => {
 
   return (
     <div className="container">
-      <MapContainer
-        center={centerPosition}
-        zoom={16}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          attribution='&copy; <a href="https://www.esri.com">Esri</a> contributors'
-        />
-        <MapClickHandler />
-        {ownerPosition && (
-          <Marker
-            position={ownerPosition}
-            icon={L.icon({ iconUrl: owner, iconSize: [32, 32] })}
-          >
-            <Popup>Owner's Location</Popup>
-          </Marker>
-        )}
-        {markers.map((animal, index) => (
-          <Polyline
-            key={index}
-            positions={animal.positions}
-            pathOptions={{ color: getLineColor(index) }}
-          >
-            {animal.positions.map((position, markerIndex) => (
-              <Marker
-                key={markerIndex}
-                position={position}
-                icon={
-                  markerIndex === animal.positions.length - 1
-                    ? L.icon({
-                        iconUrl: animal.icon,
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 16],
-                      })
-                    : L.divIcon({
-                        className: 'custom-marker',
-                      })
-                }
-              />
-            ))}
-          </Polyline>
-        ))}
-
-        {shape === 'circle' && (
-          <>
-            <Circle
-              center={centerPosition}
-              radius={mainBorder}
-              pathOptions={getCircleOptions('main')}
-            />
-            <Circle
-              center={centerPosition}
-              radius={nearestBorder}
-              pathOptions={getCircleOptions('nearest')}
-            />
-          </>
-        )}
-        {shape === 'rectangle' && (
-          <>
-            <Rectangle
-              bounds={getRectangleBounds(centerPosition, mainBorder)}
-              pathOptions={getPolygonOptions('main')}
-            />
-            <Rectangle
-              bounds={getRectangleBounds(centerPosition, nearestBorder)}
-              pathOptions={getPolygonOptions('nearest')}
-            />
-          </>
-        )}
-      </MapContainer>
+      <Map />
       <div className="info-container">
         <div className="outside-circle-container">
           <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
