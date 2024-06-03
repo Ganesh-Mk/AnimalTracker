@@ -25,7 +25,13 @@ const getCircleOptions = (borderType) => ({
   fillOpacity: 0.2,
 })
 
-function Map({ MapClickHandler }) {
+function Map({ handleMapClick }) {
+  const MapClickHandler = () => {
+    useMapEvents({
+      click: handleMapClick ? handleMapClick : () => {},
+    })
+    return null
+  }
   const mapObj = useSelector((state) => state.map)
   const [centerPosition, setCenterPosition] = useState([
     15.892826703895803,
@@ -39,7 +45,6 @@ function Map({ MapClickHandler }) {
   const [mainBorder, setMainBorder] = useState(0)
 
   useEffect(() => {
-    console.log(mapObj)
     setCenterPosition(mapObj.centerPosition)
     setOwnerLocation(mapObj.ownerLocation)
     setMarkers(mapObj.markers)

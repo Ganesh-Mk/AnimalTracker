@@ -30,8 +30,8 @@ import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+// import { ToastContainer, toast } from 'react-toastify'
+// // import 'react-toastify/dist/ReactToastify.css'
 import {
   setAnimalName,
   setAnimalLat,
@@ -226,11 +226,11 @@ const ManagePage = () => {
         centerPosition,
       })
       .then((res) => {
-        toast.success('Successfully set border position!')
+        // toast.success('Successfully set border position!')
         localStorage.setItem('border', JSON.stringify(res.data.border))
       })
       .catch((err) => {
-        toast.error('Failed to set border position!')
+        // toast.error('Failed to set border position!')
         console.log(err)
       })
   }
@@ -259,7 +259,6 @@ const ManagePage = () => {
       setCenterPosition(border.centerPosition)
       dispatch(setCenterPositionSlice(border.centerPosition))
       setOwnerName(localStorage.getItem('name'))
-      console.log('new: ', localStorage.getItem('ownerLocation').split(','))
       let ownerLoc = localStorage.getItem('ownerLocation').split(',')
       if (ownerLoc.length === 2) {
         setOwnerLocation(localStorage.getItem('ownerLocation').split(','))
@@ -328,13 +327,6 @@ const ManagePage = () => {
     }
   }
 
-  const MapClickHandler = () => {
-    useMapEvents({
-      click: handleMapClick,
-    })
-    return null
-  }
-
   const handleOwner = () => {
     axios
       .post('http://localhost:3001/setOwner', {
@@ -343,7 +335,7 @@ const ManagePage = () => {
         ownerName,
       })
       .then((res) => {
-        toast.success('Successfully set owner location!')
+        // toast.success('Successfully set owner location!')
         console.log(res.data)
         localStorage.setItem('name', res.data.userName)
         localStorage.setItem('ownerLocation', res.data.userLocation)
@@ -351,16 +343,16 @@ const ManagePage = () => {
         dispatch(setOwnerLocationSlice(res.data.userLocation))
       })
       .catch((err) => {
-        toast.error('Failed to set owner location!')
+        // toast.error('Failed to set owner location!')
         console.log(err)
       })
   }
 
   return (
     <div className="container">
-      <ToastContainer />
+      {/* <ToastContainer /> */}
 
-      <Map MapClickHandler={MapClickHandler} />
+      <Map handleMapClick={handleMapClick} />
       <Tabs
         variant="soft-rounded"
         colorScheme="green"
@@ -548,6 +540,7 @@ const ManagePage = () => {
               </div>
             </div>
           </TabPanel>
+
           <TabPanel>
             <div className="info">
               <div className="add-animal">

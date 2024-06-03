@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   centerPosition: [15.892826703895803, 74.53231051009787],
   ownerLocation: [15.893782329637874, 74.5314625373903],
-  markers: '',
+  markers: [],
   shape: 'circle',
   // owner: '',
   activeTab: 0,
