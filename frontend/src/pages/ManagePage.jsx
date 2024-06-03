@@ -192,6 +192,7 @@ const ManagePage = () => {
         newAnimalName,
       })
       .then((res) => {
+        console.log(res.data)
         localStorage.setItem('allAnimals', JSON.stringify(res.data.allAnimals))
         localStorage.setItem('border', JSON.stringify(res.data.border))
       })
@@ -219,6 +220,7 @@ const ManagePage = () => {
       })
   }
 
+  // Reload
   useEffect(() => {
     let border = localStorage.getItem('border')
 
@@ -237,6 +239,12 @@ const ManagePage = () => {
       setNearestBorder(border.nearestBorder)
       setShape(border.shape)
       setCenterPosition(border.centerPosition)
+      setOwnerName(localStorage.getItem('name'))
+      console.log('new: ', localStorage.getItem('ownerLocation').split(','))
+      let ownerLoc = localStorage.getItem('ownerLocation').split(',')
+      if (ownerLoc.length === 2) {
+        setOwnerLocation(localStorage.getItem('ownerLocation').split(','))
+      }
     }
 
     let allAnimals = localStorage.getItem('allAnimals')
@@ -311,6 +319,27 @@ const ManagePage = () => {
     })
     return null
   }
+
+  const handleOwner = () => {
+    axios
+      .post('http://localhost:3001/setOwner', {
+        email: localStorage.getItem('email'),
+        ownerLocation,
+        ownerName,
+      })
+      .then((res) => {
+        // toast.success('Successfully set owner location!')
+        console.log(res.data)
+        localStorage.setItem('name', res.data.userName)
+        localStorage.setItem('ownerLocation', res.data.userLocation)
+        setOwnerLocation(res.data.userLocation)
+      })
+      .catch((err) => {
+        // toast.error('Failed to set owner location!')
+        console.log(err)
+      })
+  }
+
   return (
     <div className="container">
       {/* <ToastContainer /> */}
@@ -622,7 +651,7 @@ const ManagePage = () => {
                 <button
                   className="infoBtn"
                   style={{ marginTop: '2vw' }}
-                  onClick={handleAddAnimal}
+                  onClick={handleOwner}
                 >
                   Update
                 </button>

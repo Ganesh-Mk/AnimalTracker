@@ -41,6 +41,7 @@ function Signup({ setIsAuthenticated }) {
         localStorage.setItem('password', result.data.userPassword)
         localStorage.setItem('allAnimals', '')
         localStorage.setItem('border', '')
+        localStorage.setItem('ownerLocation', '')
         setIsAuthenticated(true)
         setUserEmail('')
         setUserName('')
