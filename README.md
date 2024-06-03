@@ -20,7 +20,7 @@ Clone the repository:
 
 bash
 Copy code
-git clone https://github.com/yourusername/animal-tracking-system.git
+git clone https://github.com/Ganesh-Mk/animal-tracking-system.git
 cd animal-tracking-system
 Install dependencies for both the frontend and backend:
 
