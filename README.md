@@ -20,7 +20,7 @@ Clone the repository:
 
 bash
 Copy code
-git clone https://github.com/Ganesh-Mk/animal-tracking-system.git
+git clone https://github.com/Ganesh-Mk/AnimalTracker
 cd animal-tracking-system
 Install dependencies for both the frontend and backend:
 
@@ -50,7 +50,7 @@ bash
 Copy code
 cd frontend
 npm run dev
-Open your browser and navigate to http://localhost:3000 to view the application.
+Open your browser and navigate to http://localhost:5173 to view the application.
 
 ## Project Structure
 backend/: Contains the server-side code, API routes, and database models.
