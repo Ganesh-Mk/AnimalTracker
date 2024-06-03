@@ -3,10 +3,11 @@
 The Animal Tracking System is a web application developed using the MERN (MongoDB, Express.js, React.js, Node.js) stack. This system allows users to track animals, manage their profiles, and handle ownership details. It includes secure login and signup functionality, including Google authentication.
 
 ## Features
-Track Page: Monitor and track the location and status of animals.
-Manage Page: Manage animal profiles, add new animals, update existing information, and manage owner profiles.
-Animal Profile and Stats: View detailed profiles and statistics of individual animals.
-Secure Authentication: Secure login and signup functionality, including the option to sign up using Google.
+### Track Page: Monitor and track the location and status of animals.
+### Manage Page: Manage animal profiles, add new animals, update existing information, and manage owner profiles.
+### Animal Profile and Stats: View detailed profiles and statistics of individual animals.
+### Secure Authentication: Secure login and signup functionality, including the option to sign up using Google.
+</br>
 Getting Started
 Prerequisites
 Make sure you have the following installed on your system:
