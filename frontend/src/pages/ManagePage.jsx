@@ -216,15 +216,27 @@ const ManagePage = () => {
         console.log(err)
       })
   }
-
   const handleBorder = () => {
+    let existingBorders = JSON.parse(localStorage.getItem('AllBorders')) || []
+
+    const newBorder = {
+      shape: shape,
+      mainBorder: mainBorder,
+      nearestBorder: nearestBorder,
+      centerPosition: centerPosition,
+    }
+
+    existingBorders.push(newBorder)
+
+    localStorage.setItem('AllBorders', JSON.stringify(existingBorders))
+
+    let AllBordersLocal = localStorage.getItem('AllBorders')
+    console.log(JSON.parse(AllBordersLocal))
+
     axios
       .post('http://localhost:3001/setBorderPosition', {
         email: localStorage.getItem('email'),
-        shape,
-        mainBorder,
-        nearestBorder,
-        centerPosition,
+        borders: existingBorders, // Send the entire array of borders
       })
       .then((res) => {
         // toast.success('Successfully set border position!')

@@ -8,7 +8,6 @@ import {
   Polyline,
   useMapEvents,
   Rectangle,
-  Polygon,
 } from 'react-leaflet'
 import { useSelector } from 'react-redux'
 import owner from '../images/owner.png'
@@ -28,9 +27,15 @@ const getRectangleBounds = (center, size) => {
 }
 
 const getCircleOptions = (borderType) => ({
-  color: borderType === 'main' ? 'blue' : 'green',
+  color: borderType === 'main' ? 'orange' : 'green',
   fillColor: borderType === 'main' ? 'lightblue' : 'lightgreen',
-  fillOpacity: 0.2,
+  fillOpacity: 0.09,
+})
+
+const getRectangleOptions = (borderType) => ({
+  color: borderType === 'main' ? 'orange' : 'green',
+  fillColor: borderType === 'main' ? 'lightblue' : 'lightgreen',
+  fillOpacity: 0.1,
 })
 
 function Map({ handleMapClick }) {
@@ -47,25 +52,21 @@ function Map({ handleMapClick }) {
   ])
   const [ownerLocation, setOwnerLocation] = useState(null)
   const [markers, setMarkers] = useState([])
-  const [shape, setShape] = useState('circle')
-  // const [owner, setOwner] = useState(null)
-  const [nearestBorder, setNearestBorder] = useState(0)
-  const [mainBorder, setMainBorder] = useState(0)
+  const [borders, setBorders] = useState([])
 
   useEffect(() => {
     setCenterPosition(mapObj.centerPosition)
     setOwnerLocation(mapObj.ownerLocation)
     setMarkers(mapObj.markers)
-    setShape(mapObj.shape)
-    // setOwner(mapObj.owner)
-    setNearestBorder(mapObj.nearestBorder)
-    setMainBorder(mapObj.mainBorder)
-  })
+
+    const storedBorders = JSON.parse(localStorage.getItem('AllBorders')) || []
+    setBorders(storedBorders)
+  }, [mapObj])
 
   return (
     <>
       <MapContainer
-        center={[centerPosition[0], centerPosition[1]]}
+        center={centerPosition}
         zoom={15}
         style={{ height: '100%', width: '57%' }}
       >
@@ -108,31 +109,38 @@ function Map({ handleMapClick }) {
           </Polyline>
         ))}
 
-        {shape === 'circle' && (
-          <>
-            <Circle
-              center={centerPosition}
-              radius={mainBorder}
-              pathOptions={getCircleOptions('main')}
-            />
-            <Circle
-              center={centerPosition}
-              radius={nearestBorder}
-              pathOptions={getCircleOptions('nearest')}
-            />
-          </>
-        )}
-        {shape === 'rectangle' && (
-          <>
-            <Rectangle
-              bounds={getRectangleBounds(centerPosition, mainBorder)}
-              pathOptions={getPolygonOptions('main')}
-            />
-            <Rectangle
-              bounds={getRectangleBounds(centerPosition, nearestBorder)}
-              pathOptions={getPolygonOptions('nearest')}
-            />
-          </>
+        {borders.map((border, index) =>
+          border.shape === 'circle' ? (
+            <React.Fragment key={`circle-${index}`}>
+              <Circle
+                center={border.centerPosition}
+                radius={border.mainBorder}
+                pathOptions={getCircleOptions('main')}
+              />
+              <Circle
+                center={border.centerPosition}
+                radius={border.nearestBorder}
+                pathOptions={getCircleOptions('nearest')}
+              />
+            </React.Fragment>
+          ) : (
+            <React.Fragment key={`rectangle-${index}`}>
+              <Rectangle
+                bounds={getRectangleBounds(
+                  border.centerPosition,
+                  border.mainBorder,
+                )}
+                pathOptions={getRectangleOptions('main')}
+              />
+              <Rectangle
+                bounds={getRectangleBounds(
+                  border.centerPosition,
+                  border.nearestBorder,
+                )}
+                pathOptions={getRectangleOptions('nearest')}
+              />
+            </React.Fragment>
+          ),
         )}
       </MapContainer>
     </>

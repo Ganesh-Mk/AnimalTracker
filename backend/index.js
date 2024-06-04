@@ -25,7 +25,7 @@ app.post('/addAnimal', (req, res) => {
       const newAnimal = {
         name: newAnimalName,
         positions: [[newAnimalLat, newAnimalLng]],
-        icon: 'https://cdn-icons-png.flaticon.com/512/147/147144.png',
+        icon: 'https://cdn-icons-png.flaticon.com/512/4775/4775679.png',
       }
       user.allAnimals.push(newAnimal)
       user.save()
