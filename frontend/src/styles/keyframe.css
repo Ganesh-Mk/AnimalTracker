@@ -1,0 +1,16 @@
+@keyframes blink {
+    0% {
+      background-color: lightgreen;
+    }
+    50% {
+      background-color: transparent;
+    }
+    100% {
+      background-color: lightgreen;
+    }
+  }
+  
+  .blinking-background {
+    animation: blink 1s infinite;
+  }
+  

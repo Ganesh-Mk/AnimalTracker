@@ -1,16 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Circle,
-  Polyline,
-  useMapEvents,
-  Rectangle,
-  Polygon,
-} from 'react-leaflet'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import {
   setCenterPositionSlice,
   setOwnerLocationSlice,
@@ -30,20 +19,6 @@ import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
-// import { ToastContainer, toast } from 'react-toastify'
-// // import 'react-toastify/dist/ReactToastify.css'
-import {
-  setAnimalName,
-  setAnimalLat,
-  setAnimalLong,
-  setAnimalMeter,
-  setAnimalKm,
-  setAnimalDate,
-  setAnimalTime,
-  setAnimalRest,
-  setAnimalWalk,
-  setAnimalOutside,
-} from '../store/animalSlice'
 import Map from '../Components/Map'
 
 const ManagePage = () => {
