@@ -87,6 +87,7 @@ const ManagePage = () => {
         ],
       }))
       setMarkers(newMarkers)
+      dispatch(setMarkersSlice(newMarkers))
     }, 5000)
 
     return () => clearInterval(interval)

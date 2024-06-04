@@ -19,6 +19,14 @@ function getLineColor(index) {
   return colors[index % colors.length]
 }
 
+const getRectangleBounds = (center, size) => {
+  const halfSize = size / 2 / 111320
+  return [
+    [center[0] - halfSize, center[1] - halfSize],
+    [center[0] + halfSize, center[1] + halfSize],
+  ]
+}
+
 const getCircleOptions = (borderType) => ({
   color: borderType === 'main' ? 'blue' : 'green',
   fillColor: borderType === 'main' ? 'lightblue' : 'lightgreen',

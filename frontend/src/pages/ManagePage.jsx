@@ -26,6 +26,7 @@ import 'leaflet/dist/leaflet.css'
 import '../styles/ManagePage.css'
 import cat from '../images/cat.png'
 import dog from '../images/dog.png'
+import lion from '../images/lion.png'
 import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
@@ -422,6 +423,13 @@ const ManagePage = () => {
                     className={selectedImage === elephant ? 'active' : ''}
                     onClick={() => setSelectedImage(elephant)}
                   />
+                  <img
+                    src={lion}
+                    style={{ background: 'yellowgreen', borderRadius: '100vw' }}
+                    alt="lion"
+                    className={selectedImage === lion ? 'active' : ''}
+                    onClick={() => setSelectedImage(lion)}
+                  />
                 </div>
                 <button
                   className="infoBtn"
@@ -467,7 +475,7 @@ const ManagePage = () => {
                   </div>
                 </label>
                 <label>
-                  Main Border Size  (meters): {mainBorder}
+                  Main Border Size (meters): {mainBorder}
                   <input
                     type="range"
                     min="10"
