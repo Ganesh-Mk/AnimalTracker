@@ -17,23 +17,43 @@ app.get('/alluser', (req, res) => {
     .then((users) => res.send(users))
     .catch((err) => res.send(err))
 })
-
 app.post('/addAnimal', (req, res) => {
   const { email, newAnimalName, newAnimalLat, newAnimalLng } = req.body
-  UsersModel.findOne({ userEmail: email }).then((user) => {
-    if (user) {
-      const newAnimal = {
-        name: newAnimalName,
-        positions: [[newAnimalLat, newAnimalLng]],
-        icon: 'https://cdn-icons-png.flaticon.com/512/4775/4775679.png',
+
+  console.log('Incoming request:', req.body)
+
+  UsersModel.findOne({ userEmail: email })
+    .then((user) => {
+      if (user) {
+        console.log('User found:', user.userEmail)
+        console.log("User's animals before adding:", user.allAnimals)
+
+        const newAnimal = {
+          name: newAnimalName,
+          positions: [[newAnimalLat, newAnimalLng]],
+          icon: 'https://cdn-icons-png.flaticon.com/512/4775/4775679.png',
+        }
+
+        user.allAnimals.push(newAnimal)
+        user
+          .save()
+          .then((savedUser) => {
+            console.log("User's animals after adding:", savedUser.allAnimals)
+            res.send(savedUser)
+          })
+          .catch((saveErr) => {
+            console.error('Error saving user:', saveErr)
+            res.status(500).json({ error: 'Error saving user' })
+          })
+      } else {
+        console.log('User not exist')
+        res.status(404).json({ error: 'User not exist' })
       }
-      user.allAnimals.push(newAnimal)
-      user.save()
-      res.send(user)
-    } else {
-      res.json('User not exist')
-    }
-  })
+    })
+    .catch((err) => {
+      console.error('Error finding user:', err)
+      res.status(500).json({ error: 'Error finding user' })
+    })
 })
 
 app.post('/setBorderPosition', (req, res) => {

@@ -57,6 +57,7 @@ const ManagePage = () => {
   const [outsideMainBorder, setOutsideMainBorder] = useState([])
   const [nearMainBorder, setNearMainBorder] = useState([])
   const [distances, setDistances] = useState([])
+  const [numberOfAnimals, setNumberOfAnimals] = useState(0)
   const [ownerName, setOwnerName] = useState(localStorage.getItem('name'))
   const [ownerLocation, setOwnerLocation] = useState([
     15.893782329637874,
@@ -83,18 +84,15 @@ const ManagePage = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const newMarkers = markers.map((animal) => ({
-        ...animal,
-        positions: [
-          ...animal.positions,
-          [
-            animal.positions[animal.positions.length - 1][0] +
-              getRandomOffset(),
-            animal.positions[animal.positions.length - 1][1] +
-              getRandomOffset(),
-          ],
-        ],
-      }))
+      const newMarkers = markers.map((animal) => {
+        const lastPosition = animal.positions[animal.positions.length - 1]
+        const newLat = lastPosition[0] + getRandomOffset()
+        const newLng = lastPosition[1] + getRandomOffset()
+        return {
+          ...animal,
+          positions: [...animal.positions, [newLat, newLng]],
+        }
+      })
       setMarkers(newMarkers)
       dispatch(setMarkersSlice(newMarkers))
     }, 5000)
@@ -184,38 +182,56 @@ const ManagePage = () => {
 
   const handleAddAnimal = () => {
     if (newAnimalName && newAnimalLat && newAnimalLng) {
-      const newAnimal = {
-        name: newAnimalName,
-        positions: [[parseFloat(newAnimalLat), parseFloat(newAnimalLng)]],
-        icon: selectedImage,
+      const count = numberOfAnimals ? parseInt(numberOfAnimals, 10) : 1
+      const updatedMarkers = [...markers]
+
+      for (let i = 0; i < count; i++) {
+        const latOffset = (Math.random() - 0.5) * 0.001 // slight random offset for latitude
+        const lngOffset = (Math.random() - 0.5) * 0.001 // slight random offset for longitude
+
+        const newAnimal = {
+          name: `${newAnimalName} ${i + 1}`,
+          positions: [
+            [
+              parseFloat(newAnimalLat) + latOffset,
+              parseFloat(newAnimalLng) + lngOffset,
+            ],
+          ],
+          icon: selectedImage,
+        }
+
+        updatedMarkers.push(newAnimal)
+
+        axios
+          .post('http://localhost:3001/addAnimal', {
+            email: localStorage.getItem('email'),
+            mainBorder,
+            newAnimalLat: parseFloat(newAnimalLat) + latOffset,
+            shape,
+            newAnimalLng: parseFloat(newAnimalLng) + lngOffset,
+            nearestBorder,
+            newAnimalName: `${newAnimalName} ${i + 1}`,
+          })
+          .then((res) => {
+            localStorage.setItem(
+              'allAnimals',
+              JSON.stringify(res.data.allAnimals),
+            )
+            localStorage.setItem('border', JSON.stringify(res.data.border))
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       }
 
-      setMarkers([...markers, newAnimal])
-      dispatch(setMarkersSlice([...markers, newAnimal]))
+      setMarkers(updatedMarkers)
+      dispatch(setMarkersSlice(updatedMarkers))
       setNewAnimalName('')
       setNewAnimalLat('')
       setNewAnimalLng('')
     }
-
-    axios
-      .post('http://localhost:3001/addAnimal', {
-        email: localStorage.getItem('email'),
-        mainBorder,
-        newAnimalLat,
-        shape,
-        newAnimalLng,
-        nearestBorder,
-        newAnimalName,
-      })
-      .then((res) => {
-        console.log(res.data)
-        localStorage.setItem('allAnimals', JSON.stringify(res.data.allAnimals))
-        localStorage.setItem('border', JSON.stringify(res.data.border))
-      })
-      .catch((err) => {
-        console.log(err)
-      })
   }
+
   const handleBorder = () => {
     let existingBorders = JSON.parse(localStorage.getItem('AllBorders')) || []
 
@@ -295,6 +311,29 @@ const ManagePage = () => {
     } else {
       allAnimals = null
     }
+    if (allAnimals) {
+      setMarkers(allAnimals)
+      dispatch(setMarkersSlice(allAnimals))
+    }
+  }, [])
+
+  useEffect(() => {
+    let allAnimals = localStorage.getItem('allAnimals')
+
+    if (allAnimals) {
+      try {
+        allAnimals = JSON.parse(allAnimals)
+        // Ensure positions are arrays of numbers
+        allAnimals = allAnimals.map((animal) => ({
+          ...animal,
+          positions: animal.positions.map((pos) => pos.map(Number)),
+        }))
+      } catch (e) {
+        console.error('Error parsing JSON: ', e)
+        allAnimals = []
+      }
+    }
+
     if (allAnimals) {
       setMarkers(allAnimals)
       dispatch(setMarkersSlice(allAnimals))
@@ -388,11 +427,21 @@ const ManagePage = () => {
                   Name:
                   <input
                     type="text"
-                    value={newAnimalName}
+                    value={newAnimalName || ''}
                     placeholder="Unique nickname of animal"
                     onChange={(e) => setNewAnimalName(e.target.value)}
                   />
                 </label>
+                <label>
+                  Number of animals:
+                  <input
+                    type="number"
+                    value={numberOfAnimals || ''}
+                    placeholder="Enter number of same animals"
+                    onChange={(e) => setNumberOfAnimals(e.target.value)}
+                  />
+                </label>
+
                 <h2 align="center" style={{ marginTop: '2vw' }}>
                   Click on map to set animal location
                 </h2>
@@ -401,14 +450,14 @@ const ManagePage = () => {
                 >
                   <input
                     type="text"
-                    value={newAnimalLat}
+                    value={newAnimalLat || ''}
                     readOnly
                     style={{ backgroundColor: 'rgb(234 234 234)' }}
                     placeholder="Latitude location"
                   />
                   <input
                     type="text"
-                    value={newAnimalLng}
+                    value={newAnimalLng || ''}
                     readOnly
                     style={{ backgroundColor: 'rgb(234 234 234)' }}
                     placeholder="Longitude location"
@@ -492,7 +541,7 @@ const ManagePage = () => {
                     type="range"
                     min="10"
                     max="10000"
-                    value={mainBorder}
+                    value={mainBorder || 0}
                     onChange={(e) => {
                       const newValue = parseInt(e.target.value, 10)
                       setMainBorder(newValue)
@@ -512,7 +561,7 @@ const ManagePage = () => {
                     type="range"
                     min="10"
                     max="10000"
-                    value={nearestBorder}
+                    value={nearestBorder || 0}
                     onChange={(e) => {
                       const newValue = parseInt(e.target.value, 10)
                       if (newValue < mainBorder) {
@@ -535,7 +584,7 @@ const ManagePage = () => {
                 >
                   <input
                     type="text"
-                    value={centerPosition[0]}
+                    value={centerPosition[0] || ''}
                     placeholder="Right click on map to set latitude"
                     readOnly
                     style={{ backgroundColor: 'rgb(234 234 234)' }}
@@ -543,7 +592,7 @@ const ManagePage = () => {
 
                   <input
                     type="text"
-                    value={centerPosition[1]}
+                    value={centerPosition[1] || ''}
                     placeholder="Right click on map to set longitude"
                     readOnly
                     style={{ backgroundColor: 'rgb(234 234 234)' }}
@@ -578,7 +627,7 @@ const ManagePage = () => {
                     <label className="centerInputLabel">
                       <input
                         type="text"
-                        value={ownerName}
+                        value={ownerName || ''}
                         placeholder="Enter Name"
                         onChange={(e) => setOwnerName(e.target.value)}
                       />
@@ -594,14 +643,14 @@ const ManagePage = () => {
                 >
                   <input
                     type="text"
-                    value={ownerLocation[0]}
+                    value={ownerLocation[0] || ''}
                     readOnly
                     style={{ backgroundColor: 'rgb(234 234 234)' }}
                     placeholder="Latitude location"
                   />
                   <input
                     type="text"
-                    value={ownerLocation[1]}
+                    value={ownerLocation[1] || ''}
                     readOnly
                     style={{ backgroundColor: 'rgb(234 234 234)' }}
                     placeholder="Longitude location"

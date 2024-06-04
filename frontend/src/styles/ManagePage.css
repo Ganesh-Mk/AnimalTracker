@@ -87,6 +87,7 @@ label {
 }
 
 input[type='text'],
+input[type='number'],
 select {
   display: block;
   width: 100%;
