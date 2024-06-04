@@ -447,20 +447,6 @@ const ManagePage = () => {
     reader.readAsDataURL(file)
   }
 
-  useEffect(() => {
-    axios
-      .get('http://localhost:3001/fetchAnimalImage', {
-        params: {
-          userEmail: localStorage.getItem('email'),
-        },
-      })
-      .then((response) => {
-        setAnimalImage(response.data.userImage)
-      })
-      .catch((error) => {
-        console.error('Error fetching user data:', error)
-      })
-  }, [])
   return (
     <div className="container">
       {/* <ToastContainer /> */}
