@@ -23,9 +23,6 @@ app.post('/addAnimal', (req, res) => {
   UsersModel.findOne({ userEmail: email })
     .then((user) => {
       if (user) {
-        console.log('User found:', user.userEmail)
-        console.log("User's animals before adding:", user.allAnimals)
-
         const newAnimal = {
           name: newAnimalName,
           positions: [[newAnimalLat, newAnimalLng]],
@@ -39,10 +36,6 @@ app.post('/addAnimal', (req, res) => {
           .then(() => {
             UsersModel.findOne({ userEmail: email })
               .then((updatedUser) => {
-                console.log(
-                  "User's animals after adding:",
-                  updatedUser.allAnimals,
-                )
                 res.send(updatedUser)
               })
               .catch((err) => {

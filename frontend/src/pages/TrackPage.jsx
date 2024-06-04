@@ -10,9 +10,7 @@ import {
   Rectangle,
   Polygon,
 } from 'react-leaflet'
-import Map from '../Components/Map'
-import L from 'leaflet'
-import { useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 import {
   setCenterPositionSlice,
   setOwnerLocationSlice,
@@ -22,14 +20,19 @@ import {
   setNearestBorderSlice,
   setMainBorderSlice,
 } from '../store/mapSlice'
+import L from 'leaflet'
+import { Tabs, Tab, TabPanel, TabPanels, TabList } from '@chakra-ui/react'
 import 'leaflet/dist/leaflet.css'
 import '../styles/ManagePage.css'
 import cat from '../images/cat.png'
 import dog from '../images/dog.png'
+import lion from '../images/lion.png'
 import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
+// import { ToastContainer, toast } from 'react-toastify'
+// // import 'react-toastify/dist/ReactToastify.css'
 import {
   setAnimalName,
   setAnimalLat,
@@ -42,138 +45,126 @@ import {
   setAnimalWalk,
   setAnimalOutside,
 } from '../store/animalSlice'
-import { useDispatch } from 'react-redux'
+import Map from '../Components/Map'
 
-const TrackPage = () => {
-  const navigate = useNavigate()
+const ManagePage = () => {
   const dispatch = useDispatch()
+  const [markers, setMarkers] = useState([])
+  const [activeTab, setActiveTab] = useState(0)
+  const [shape, setShape] = useState('circle')
+  const [mainBorder, setMainBorder] = useState(750)
+  const [nearestBorder, setNearestBorder] = useState(600)
+  const [outsideMainBorder, setOutsideMainBorder] = useState([])
+  const [nearMainBorder, setNearMainBorder] = useState([])
+  const [distances, setDistances] = useState([])
+  const [numberOfAnimals, setNumberOfAnimals] = useState(0)
+  const [ownerName, setOwnerName] = useState(localStorage.getItem('name'))
   const [ownerLocation, setOwnerLocation] = useState([
     15.893782329637874,
     74.5314625373903,
   ])
-  const [centerPosition, setCenterPosition] = useState([16.1622, 74.8298])
-  const [ownerPosition, setOwnerPosition] = useState(null)
-  const [markers, setMarkers] = useState([])
-  const [ownerName, setOwnerName] = useState(localStorage.getItem('name'))
+  const [ownerEmail, setOwnerEmail] = useState(localStorage.getItem('email'))
+  const [ownerPassword, setOwnerPassword] = useState(
+    localStorage.getItem('password'),
+  )
+  const [centerPosition, setCenterPosition] = useState([
+    15.892826703895803,
+    74.53231051009787,
+  ])
 
-  const [shape, setShape] = useState('circle')
-  const [mainBorder, setMainBorder] = useState(300)
-  const [nearestBorder, setNearestBorder] = useState(250)
-  const [outsideMainBorder, setOutsideMainBorder] = useState([])
-  const [distances, setDistances] = useState([])
+  const [newAnimalName, setNewAnimalName] = useState('')
+  const [newAnimalLat, setNewAnimalLat] = useState('')
+  const [newAnimalLng, setNewAnimalLng] = useState('')
+  const [selectedImage, setSelectedImage] = useState(cat)
 
   useEffect(() => {
-    setOwnerPosition([16.1612, 74.8298])
+    setOwnerLocation([ownerLocation[0], ownerLocation[1]])
+    dispatch(setOwnerLocationSlice([ownerLocation[0], ownerLocation[1]]))
   }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const newMarkers = markers.map((animal) => ({
-        ...animal,
-        positions: [
-          ...animal.positions,
-          [
-            animal.positions[animal.positions.length - 1][0] +
-              getRandomOffset(),
-            animal.positions[animal.positions.length - 1][1] +
-              getRandomOffset(),
-          ],
-        ],
-      }))
+      const newMarkers = markers.map((animal) => {
+        const lastPosition = animal.positions[animal.positions.length - 1]
+        const newLat = lastPosition[0] + getRandomOffset()
+        const newLng = lastPosition[1] + getRandomOffset()
+        return {
+          ...animal,
+          positions: [...animal.positions, [newLat, newLng]],
+        }
+      })
       setMarkers(newMarkers)
       dispatch(setMarkersSlice(newMarkers))
-      checkAnimalsBorders() // Check for animals outside the border
     }, 5000)
 
     return () => clearInterval(interval)
   }, [markers])
 
-  const checkAnimalsBorders = () => {
-    const newOutsideMainBorder = []
-    const newNearMainBorder = []
-    const newDistances = markers.map((animal) => {
-      const lastPosition = animal.positions[animal.positions.length - 1]
-      const distanceToCenter = calculateDistance(centerPosition, lastPosition)
-      const distanceToOwner = ownerPosition
-        ? calculateDistance(ownerPosition, lastPosition)
-        : null
-      const currentTime = new Date().toLocaleTimeString()
-      const currentDate = new Date().toLocaleDateString()
+  useEffect(() => {
+    const checkAnimalsBorders = () => {
+      const newOutsideMainBorder = []
+      const newNearMainBorder = []
+      const newDistances = markers.map((animal) => {
+        const lastPosition = animal.positions[animal.positions.length - 1]
+        const distanceToCenter = calculateDistance(centerPosition, lastPosition)
+        const distanceToOwner = ownerLocation
+          ? calculateDistance(ownerLocation, lastPosition)
+          : null
+        const currentTime = new Date().toLocaleTimeString()
+        const currentDate = new Date().toLocaleDateString()
 
-      const isOutsideMainBorder = checkIfOutsideBorder(
-        lastPosition,
-        shape,
-        centerPosition,
-        mainBorder,
-      )
-      const isNearMainBorder = checkIfOutsideBorder(
-        lastPosition,
-        shape,
-        centerPosition,
-        nearestBorder,
-      )
+        const isOutsideMainBorder = checkIfOutsideBorder(
+          lastPosition,
+          shape,
+          centerPosition,
+          mainBorder,
+        )
+        const isNearMainBorder = checkIfOutsideBorder(
+          lastPosition,
+          shape,
+          centerPosition,
+          nearestBorder,
+        )
 
-      newOutsideMainBorder.push({
-        name: animal.name,
-        position: lastPosition,
-        time: currentTime,
-        date: currentDate,
-        icon: animal.icon,
-        outside: isOutsideMainBorder,
-        near: !isOutsideMainBorder && isNearMainBorder,
+        if (isOutsideMainBorder) {
+          newOutsideMainBorder.push({
+            name: animal.name,
+            position: lastPosition,
+            time: currentTime,
+            date: currentDate,
+            icon: animal.icon,
+            outside: isOutsideMainBorder,
+            near: !isOutsideMainBorder && isNearMainBorder,
+          })
+        }
+
+        if (isNearMainBorder && !isOutsideMainBorder) {
+          newNearMainBorder.push({
+            name: animal.name,
+            position: lastPosition,
+            time: currentTime,
+            date: currentDate,
+            icon: animal.icon,
+          })
+        }
+
+        return {
+          name: animal.name,
+          distanceMeters: distanceToOwner ? distanceToOwner.toFixed(2) : null,
+          distanceKm: distanceToOwner
+            ? (distanceToOwner / 1000).toFixed(2)
+            : null,
+        }
       })
 
-      if (isNearMainBorder && !isOutsideMainBorder) {
-        newNearMainBorder.push({
-          name: animal.name,
-          position: lastPosition,
-          time: currentTime,
-          date: currentDate,
-          icon: animal.icon,
-        })
-      }
+      setOutsideMainBorder(newOutsideMainBorder)
+      setNearMainBorder(newNearMainBorder)
+      setDistances(newDistances)
+    }
 
-      if (isOutsideMainBorder) {
-        console.log(
-          `${animal.name} is outside the border at ${currentTime}, ${currentDate}`,
-        )
-      }
+    checkAnimalsBorders()
+  }, [markers, centerPosition, mainBorder, nearestBorder, ownerLocation, shape])
 
-      return {
-        name: animal.name,
-        distanceMeters: distanceToOwner ? distanceToOwner.toFixed(2) : null,
-        distanceKm: distanceToOwner
-          ? (distanceToOwner / 1000).toFixed(2)
-          : null,
-      }
-    })
-
-    setOutsideMainBorder(newOutsideMainBorder)
-    setNearMainBorder(newNearMainBorder)
-    setDistances(newDistances)
-  }
-  const handleAnimalClick = (animal) => {
-    const { name, position, time, date, outside } = animal
-    const animalDistances = distances.find((dist) => dist.name === name)
-
-    const distanceMeters = animalDistances
-      ? animalDistances.distanceMeters
-      : null
-    const distanceKm = animalDistances ? animalDistances.distanceKm : null
-
-    console.log('animal,: ', animal)
-    dispatch(setAnimalName(name))
-    dispatch(setAnimalLat(animal.positions[0][0]))
-    dispatch(setAnimalLong(animal.positions[0][1]))
-    dispatch(setAnimalMeter(distanceMeters))
-    dispatch(setAnimalKm(distanceKm))
-    dispatch(setAnimalDate(date))
-    dispatch(setAnimalTime(time))
-    dispatch(setAnimalOutside(outside))
-
-    console.log(animal, distanceMeters, distanceKm, outside)
-    navigate('/animaldetail')
-  }
   const calculateDistance = (position1, position2) => {
     const [lat1, lng1] = position1
     const [lat2, lng2] = position2
@@ -191,6 +182,90 @@ const TrackPage = () => {
     return R * c
   }
 
+  const handleAddAnimal = () => {
+    if (newAnimalName && newAnimalLat && newAnimalLng) {
+      const count = numberOfAnimals ? parseInt(numberOfAnimals, 10) : 1
+      const updatedMarkers = [...markers]
+
+      for (let i = 0; i < count; i++) {
+        const latOffset = (Math.random() - 0.5) * 0.001
+        const lngOffset = (Math.random() - 0.5) * 0.001
+
+        const newAnimal = {
+          name: `${newAnimalName} ${i + 1}`,
+          positions: [
+            [
+              parseFloat(newAnimalLat) + latOffset,
+              parseFloat(newAnimalLng) + lngOffset,
+            ],
+          ],
+          icon: selectedImage,
+        }
+
+        updatedMarkers.push(newAnimal)
+
+        axios
+          .post('http://localhost:3001/addAnimal', {
+            email: localStorage.getItem('email'),
+            mainBorder,
+            newAnimalLat: parseFloat(newAnimalLat) + latOffset,
+            shape,
+            newAnimalLng: parseFloat(newAnimalLng) + lngOffset,
+            nearestBorder,
+            newAnimalName: `${newAnimalName} ${i + 1}`,
+          })
+          .then((res) => {
+            localStorage.setItem(
+              'allAnimals',
+              JSON.stringify(res.data.allAnimals),
+            )
+            localStorage.setItem('border', JSON.stringify(res.data.border))
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
+
+      setMarkers(updatedMarkers)
+      dispatch(setMarkersSlice(updatedMarkers))
+      setNewAnimalName('')
+      setNewAnimalLat('')
+      setNewAnimalLng('')
+    }
+  }
+
+  const handleBorder = () => {
+    let existingBorders = JSON.parse(localStorage.getItem('AllBorders')) || []
+
+    const newBorder = {
+      shape: shape,
+      mainBorder: mainBorder,
+      nearestBorder: nearestBorder,
+      centerPosition: centerPosition,
+    }
+
+    existingBorders.push(newBorder)
+
+    localStorage.setItem('AllBorders', JSON.stringify(existingBorders))
+
+    let AllBordersLocal = localStorage.getItem('AllBorders')
+    console.log(JSON.parse(AllBordersLocal))
+
+    axios
+      .post('http://localhost:3001/setBorderPosition', {
+        email: localStorage.getItem('email'),
+        borders: existingBorders, // Send the entire array of borders
+      })
+      .then((res) => {
+        // toast.success('Successfully set border position!')
+        localStorage.setItem('border', JSON.stringify(res.data.border))
+      })
+      .catch((err) => {
+        // toast.error('Failed to set border position!')
+        console.log(err)
+      })
+  }
+
   // Reload
   useEffect(() => {
     let border = localStorage.getItem('border')
@@ -199,21 +274,20 @@ const TrackPage = () => {
       try {
         border = JSON.parse(border)
       } catch (e) {
-        console.error('Error parsing JSON: ', e)
         border = null
       }
     } else {
       border = null
     }
     if (border) {
-      setMainBorder(border.mainBorder)
-      setNearestBorder(border.nearestBorder)
-      dispatch(setMainBorderSlice(border.mainBorder))
-      dispatch(setNearestBorderSlice(border.nearestBorder))
-      setShape(border.shape)
-      dispatch(setShapeSlice(border.shape))
-      setCenterPosition(border.centerPosition)
-      dispatch(setCenterPositionSlice(border.centerPosition))
+      // setMainBorder(border.mainBorder)
+      // setNearestBorder(border.nearestBorder)
+      // dispatch(setMainBorderSlice(border.mainBorder))
+      // dispatch(setNearestBorderSlice(border.nearestBorder))
+      // setShape(border.shape)
+      // dispatch(setShapeSlice(border.shape))
+      // setCenterPosition(border.centerPosition)
+      // dispatch(setCenterPositionSlice(border.centerPosition))
       setOwnerName(localStorage.getItem('name'))
       let ownerLoc = localStorage.getItem('ownerLocation').split(',')
       if (ownerLoc.length === 2) {
@@ -244,11 +318,28 @@ const TrackPage = () => {
     }
   }, [])
 
-  const getCircleOptions = (borderType) => ({
-    color: borderType === 'main' ? 'blue' : 'green',
-    fillColor: borderType === 'main' ? 'lightblue' : 'lightgreen',
-    fillOpacity: 0.2,
-  })
+  useEffect(() => {
+    let allAnimals = localStorage.getItem('allAnimals')
+
+    if (allAnimals) {
+      try {
+        allAnimals = JSON.parse(allAnimals)
+        // Ensure positions are arrays of numbers
+        allAnimals = allAnimals.map((animal) => ({
+          ...animal,
+          positions: animal.positions.map((pos) => pos.map(Number)),
+        }))
+      } catch (e) {
+        console.error('Error parsing JSON: ', e)
+        allAnimals = []
+      }
+    }
+
+    if (allAnimals) {
+      setMarkers(allAnimals)
+      dispatch(setMarkersSlice(allAnimals))
+    }
+  }, [])
 
   const getRectangleBounds = (center, size) => {
     const halfSize = size / 2 / 111320
@@ -274,28 +365,47 @@ const TrackPage = () => {
     return false
   }
 
-  const getPolygonOptions = (borderType) => ({
-    color: borderType === 'main' ? 'blue' : 'green',
-    fillColor: borderType === 'main' ? 'lightblue' : 'lightgreen',
-    fillOpacity: 0.2,
-  })
-
   const handleMapClick = (e) => {
     const { lat, lng } = e.latlng
-    setNewAnimalLat(lat)
-    setNewAnimalLng(lng)
+
+    if (activeTab === 0) {
+      setNewAnimalLat(lat)
+      setNewAnimalLng(lng)
+    } else if (activeTab === 1) {
+      setCenterPosition([lat, lng])
+      dispatch(setCenterPositionSlice([lat, lng]))
+    } else if (activeTab === 2) {
+      setOwnerLocation([lat, lng])
+      dispatch(setOwnerLocationSlice([lat, lng]))
+    }
   }
 
-  const MapClickHandler = () => {
-    useMapEvents({
-      click: handleMapClick,
-    })
-    return null
+  const handleOwner = () => {
+    axios
+      .post('http://localhost:3001/setOwner', {
+        email: localStorage.getItem('email'),
+        ownerLocation,
+        ownerName,
+      })
+      .then((res) => {
+        // toast.success('Successfully set owner location!')
+        console.log(res.data)
+        localStorage.setItem('name', res.data.userName)
+        localStorage.setItem('ownerLocation', res.data.userLocation)
+        setOwnerLocation(res.data.userLocation)
+        dispatch(setOwnerLocationSlice(res.data.userLocation))
+      })
+      .catch((err) => {
+        // toast.error('Failed to set owner location!')
+        console.log(err)
+      })
   }
 
   return (
     <div className="container">
-      <Map />
+      {/* <ToastContainer /> */}
+
+      <Map handleMapClick={handleMapClick} />
       <div className="info-container">
         <div className="outside-circle-container">
           <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
@@ -306,39 +416,55 @@ const TrackPage = () => {
             type="text"
             placeholder="Search animal"
           />
-          {markers.map((animal, index) => (
-            <div
-              key={index}
-              style={{
-                display: 'flex',
-                gap: '1vw',
-                margin: '1vw 0',
-                borderRadius: '1vw',
-                padding: '1vw',
-                border: '1px solid grey',
-              }}
-              className={`animal-info ${
-                outsideMainBorder[index] ? 'outside' : ''
-              }`}
-              onClick={() => handleAnimalClick(animal)}
-            >
-              <img
-                style={{ width: '5vw', height: '5vw' }}
-                src={animal.icon}
-                alt={animal.name}
-                className="animal-icon"
-              />
-              <div className="animal-details">
-                <p>
-                  <strong>Name: {animal.name}</strong>
-                </p>
-                <p>
-                  Distance:{' '}
-                  {distances[index]?.distanceMeters || 'Calculating...'} meters
-                </p>
+          {markers.map((animal, index) => {
+            const isNearMainBorder = nearMainBorder.some(
+              (nearAnimal) => nearAnimal.name === animal.name,
+            )
+            const isOutsideMainBorder = outsideMainBorder.some(
+              (outsideAnimal) => outsideAnimal.name === animal.name,
+            )
+
+            let backgroundColor = 'white'
+            if (isOutsideMainBorder) {
+              backgroundColor = 'red' // light red
+            } else if (isNearMainBorder) {
+              backgroundColor = 'lightseagreen'
+            }
+
+            return (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  gap: '1vw',
+                  margin: '1vw 0',
+                  borderRadius: '1vw',
+                  padding: '1vw',
+                  border: '1px solid grey',
+                  background: backgroundColor,
+                }}
+                className={`animal-info ${animal.outside}` ? 'outside' : ''}
+                onClick={() => handleAnimalClick(animal)}
+              >
+                <img
+                  style={{ width: '5vw', height: '5vw' }}
+                  src={animal.icon}
+                  alt={animal.name}
+                  className="animal-icon"
+                />
+                <div className="animal-details">
+                  <p>
+                    <strong>Name: {animal.name}</strong>
+                  </p>
+                  <p>
+                    Distance:{' '}
+                    {distances[index]?.distanceMeters || 'Calculating...'}{' '}
+                    meters
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>
@@ -347,11 +473,6 @@ const TrackPage = () => {
   function getRandomOffset() {
     return (Math.random() - 0.5) * 0.001
   }
-
-  function getLineColor(index) {
-    const colors = ['red', 'green', 'blue', 'purple', 'orange']
-    return colors[index % colors.length]
-  }
 }
 
-export default TrackPage
+export default ManagePage
