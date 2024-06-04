@@ -43,9 +43,9 @@ export default function Navbar() {
           <Link className="text-sm font-medium hover:underline" to="/manage">
             <p style={{ fontWeight: '700', fontSize: '1vw' }}>Manage</p>
           </Link>
-          {/* <Link className="text-sm font-medium hover:underline" to="/account">
-            <p style={{ fontWeight: '700', fontSize: '1vw' }}>Account</p>
-          </Link> */}
+          <Link className="text-sm font-medium hover:underline" to="/store">
+            <p style={{ fontWeight: '700', fontSize: '1vw' }}>Store</p>
+          </Link>
         </nav>
         <div className="flex p-0 m-0 align-items-center justify-center gap-2">
           {isAuthenticated ? (
