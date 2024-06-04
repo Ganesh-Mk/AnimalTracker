@@ -2,10 +2,17 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const UsersModel = require('./models/Users')
+const bodyParser = require('body-parser')
+const multer = require('multer')
+const path = require('path')
 
 const app = express()
 app.use(express.json())
 app.use(cors())
+app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '50mb' })) // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 mongoose
   .connect('mongodb://127.0.0.1:27017/AnimalTracker')
@@ -17,7 +24,20 @@ app.get('/alluser', (req, res) => {
     .then((users) => res.send(users))
     .catch((err) => res.send(err))
 })
-app.post('/addAnimal', (req, res) => {
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/')
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+    cb(null, uniqueSuffix + '-' + file.originalname)
+  },
+})
+
+const upload = multer({ storage: storage })
+
+app.post('/addAnimal', upload.single('image'), (req, res) => {
   const { email, newAnimalName, newAnimalLat, newAnimalLng } = req.body
 
   UsersModel.findOne({ userEmail: email })
@@ -26,7 +46,9 @@ app.post('/addAnimal', (req, res) => {
         const newAnimal = {
           name: newAnimalName,
           positions: [[newAnimalLat, newAnimalLng]],
-          icon: 'https://cdn-icons-png.flaticon.com/512/4775/4775679.png',
+          icon: req.file
+            ? req.file.filename
+            : '' || 'https://cdn-icons-png.flaticon.com/512/4775/4775679.png',
         }
 
         UsersModel.updateOne(
@@ -56,6 +78,35 @@ app.post('/addAnimal', (req, res) => {
       console.error('Error finding user:', err)
       res.status(500).json({ error: 'Error finding user' })
     })
+})
+
+app.get('/fetchAnimalImage', (req, res) => {
+  const { userEmail } = req.query
+
+  console.log('userEmail, ', userEmail)
+
+  UsersModel.findOne({ userEmail })
+    .then((userModel) => {
+      if (!userModel) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+
+      // Check if the user has any animals
+      if (!userModel.allAnimals || userModel.allAnimals.length === 0) {
+        return res.status(404).json({ error: 'No animals found for the user' })
+      }
+
+      // Assuming you want to fetch the image URL of the first animal
+      const firstAnimal = userModel.allAnimals[0].icon
+      if (!firstAnimal) {
+        return res
+          .status(404)
+          .json({ error: 'No icon found for the first animal of the user' })
+      }
+
+      res.json({ userImage: firstAnimal })
+    })
+    .catch((err) => res.status(500).json({ error: err.message }))
 })
 
 app.post('/setBorderPosition', (req, res) => {
