@@ -467,7 +467,7 @@ const ManagePage = () => {
                   </div>
                 </label>
                 <label>
-                  Main Border Size (meters): {mainBorder}
+                  Main Border Size  (meters): {mainBorder}
                   <input
                     type="range"
                     min="10"
