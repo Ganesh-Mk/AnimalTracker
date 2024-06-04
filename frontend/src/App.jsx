@@ -16,6 +16,7 @@ import { Provider } from 'react-redux' // Import Provider from react-redux
 import store from './store/store' // Import your Redux store
 import Footer from './Components/Footer'
 import { ChakraProvider } from '@chakra-ui/react'
+import Bands from './pages/Bands'
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
               <Route path="/manage" element={<ManagePage />} />
               <Route path="/account" element={<AccountPage />} />
               <Route path="/animaldetail" element={<AnimalDetails />} />
+              <Route path="/store" element={<Bands />} />
             </Routes>
             <FooterWithConditionalRendering />
           </Router>

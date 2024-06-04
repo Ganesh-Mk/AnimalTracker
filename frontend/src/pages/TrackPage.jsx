@@ -319,13 +319,13 @@ const ManagePage = () => {
     fillOpacity: 0.2,
   });
 
-  const getRectangleBounds = (center, size) => {
-    const halfSize = size / 2 / 111320;
-    return [
-      [center[0] - halfSize, center[1] - halfSize],
-      [center[0] + halfSize, center[1] + halfSize],
-    ];
-  };
+  // const getRectangleBounds = (center, size) => {
+  //   const halfSize = size / 2 / 111320;
+  //   return [
+  //     [center[0] - halfSize, center[1] - halfSize],
+  //     [center[0] + halfSize, center[1] + halfSize],
+  //   ];
+  // };
 
   const checkIfOutsideBorder = (position, shape, center, size) => {
     const distance = calculateDistance(center, position);
@@ -403,7 +403,7 @@ const ManagePage = () => {
                   border: "1px solid grey",
                   background: backgroundColor,
                 }}
-                className={`animal-info ${animal.outside ? "outside" : ""}`}
+                className={`animal-info ${animal.outside}` ? "outside" : ""}
                 onClick={() => handleAnimalClick(animal)}
               >
                 <img
@@ -436,4 +436,4 @@ const ManagePage = () => {
   }
 };
 
-export default ManagePage;
+export default ManagePage;
