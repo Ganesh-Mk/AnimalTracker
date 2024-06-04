@@ -44,7 +44,7 @@ import {
 } from '../store/animalSlice'
 import { useDispatch } from 'react-redux'
 
-const ManagePage = () => {
+const TrackPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [ownerLocation, setOwnerLocation] = useState([
@@ -60,13 +60,7 @@ const ManagePage = () => {
   const [mainBorder, setMainBorder] = useState(300)
   const [nearestBorder, setNearestBorder] = useState(250)
   const [outsideMainBorder, setOutsideMainBorder] = useState([])
-  const [nearMainBorder, setNearMainBorder] = useState([])
   const [distances, setDistances] = useState([])
-
-  const [newAnimalName, setNewAnimalName] = useState('')
-  const [newAnimalLat, setNewAnimalLat] = useState('')
-  const [newAnimalLng, setNewAnimalLng] = useState('')
-  const [selectedImage, setSelectedImage] = useState(cat)
 
   useEffect(() => {
     setOwnerPosition([16.1612, 74.8298])
@@ -88,74 +82,76 @@ const ManagePage = () => {
       }))
       setMarkers(newMarkers)
       dispatch(setMarkersSlice(newMarkers))
+      checkAnimalsBorders() // Check for animals outside the border
     }, 5000)
 
     return () => clearInterval(interval)
   }, [markers])
 
-  useEffect(() => {
-    const checkAnimalsBorders = () => {
-      const newOutsideMainBorder = []
-      const newNearMainBorder = []
-      const newDistances = markers.map((animal) => {
-        const lastPosition = animal.positions[animal.positions.length - 1]
-        const distanceToCenter = calculateDistance(centerPosition, lastPosition)
-        const distanceToOwner = ownerPosition
-          ? calculateDistance(ownerPosition, lastPosition)
-          : null
-        const currentTime = new Date().toLocaleTimeString()
-        const currentDate = new Date().toLocaleDateString()
+  const checkAnimalsBorders = () => {
+    const newOutsideMainBorder = []
+    const newNearMainBorder = []
+    const newDistances = markers.map((animal) => {
+      const lastPosition = animal.positions[animal.positions.length - 1]
+      const distanceToCenter = calculateDistance(centerPosition, lastPosition)
+      const distanceToOwner = ownerPosition
+        ? calculateDistance(ownerPosition, lastPosition)
+        : null
+      const currentTime = new Date().toLocaleTimeString()
+      const currentDate = new Date().toLocaleDateString()
 
-        const isOutsideMainBorder = checkIfOutsideBorder(
-          lastPosition,
-          shape,
-          centerPosition,
-          mainBorder,
-        )
-        const isNearMainBorder = checkIfOutsideBorder(
-          lastPosition,
-          shape,
-          centerPosition,
-          nearestBorder,
-        )
+      const isOutsideMainBorder = checkIfOutsideBorder(
+        lastPosition,
+        shape,
+        centerPosition,
+        mainBorder,
+      )
+      const isNearMainBorder = checkIfOutsideBorder(
+        lastPosition,
+        shape,
+        centerPosition,
+        nearestBorder,
+      )
 
-        newOutsideMainBorder.push({
+      newOutsideMainBorder.push({
+        name: animal.name,
+        position: lastPosition,
+        time: currentTime,
+        date: currentDate,
+        icon: animal.icon,
+        outside: isOutsideMainBorder,
+        near: !isOutsideMainBorder && isNearMainBorder,
+      })
+
+      if (isNearMainBorder && !isOutsideMainBorder) {
+        newNearMainBorder.push({
           name: animal.name,
           position: lastPosition,
           time: currentTime,
           date: currentDate,
           icon: animal.icon,
-          outside: isOutsideMainBorder,
-          near: !isOutsideMainBorder && isNearMainBorder,
         })
+      }
 
-        if (isNearMainBorder && !isOutsideMainBorder) {
-          newNearMainBorder.push({
-            name: animal.name,
-            position: lastPosition,
-            time: currentTime,
-            date: currentDate,
-            icon: animal.icon,
-          })
-        }
+      if (isOutsideMainBorder) {
+        console.log(
+          `${animal.name} is outside the border at ${currentTime}, ${currentDate}`,
+        )
+      }
 
-        return {
-          name: animal.name,
-          distanceMeters: distanceToOwner ? distanceToOwner.toFixed(2) : null,
-          distanceKm: distanceToOwner
-            ? (distanceToOwner / 1000).toFixed(2)
-            : null,
-        }
-      })
+      return {
+        name: animal.name,
+        distanceMeters: distanceToOwner ? distanceToOwner.toFixed(2) : null,
+        distanceKm: distanceToOwner
+          ? (distanceToOwner / 1000).toFixed(2)
+          : null,
+      }
+    })
 
-      setOutsideMainBorder(newOutsideMainBorder)
-      setNearMainBorder(newNearMainBorder)
-      setDistances(newDistances)
-    }
-
-    checkAnimalsBorders()
-  }, [markers, centerPosition, mainBorder, nearestBorder, ownerPosition, shape])
-
+    setOutsideMainBorder(newOutsideMainBorder)
+    setNearMainBorder(newNearMainBorder)
+    setDistances(newDistances)
+  }
   const handleAnimalClick = (animal) => {
     const { name, position, time, date, outside } = animal
     const animalDistances = distances.find((dist) => dist.name === name)
@@ -321,7 +317,9 @@ const ManagePage = () => {
                 padding: '1vw',
                 border: '1px solid grey',
               }}
-              className={`animal-info ${animal.outside ? 'outside' : ''}`}
+              className={`animal-info ${
+                outsideMainBorder[index] ? 'outside' : ''
+              }`}
               onClick={() => handleAnimalClick(animal)}
             >
               <img
@@ -356,4 +354,4 @@ const ManagePage = () => {
   }
 }
 
-export default ManagePage
+export default TrackPage

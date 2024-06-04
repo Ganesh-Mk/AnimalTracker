@@ -18,52 +18,52 @@ app.get('/alluser', (req, res) => {
     .catch((err) => res.send(err))
 })
 app.post('/addAnimal', (req, res) => {
-  const { email, newAnimalName, newAnimalLat, newAnimalLng } = req.body;
-
-  console.log('Incoming request:', req.body);
+  const { email, newAnimalName, newAnimalLat, newAnimalLng } = req.body
 
   UsersModel.findOne({ userEmail: email })
     .then((user) => {
       if (user) {
-        console.log('User found:', user.userEmail);
-        console.log("User's animals before adding:", user.allAnimals);
+        console.log('User found:', user.userEmail)
+        console.log("User's animals before adding:", user.allAnimals)
 
         const newAnimal = {
           name: newAnimalName,
           positions: [[newAnimalLat, newAnimalLng]],
           icon: 'https://cdn-icons-png.flaticon.com/512/4775/4775679.png',
-        };
+        }
 
         UsersModel.updateOne(
           { userEmail: email },
-          { $push: { allAnimals: newAnimal } }
+          { $push: { allAnimals: newAnimal } },
         )
           .then(() => {
             UsersModel.findOne({ userEmail: email })
               .then((updatedUser) => {
-                console.log("User's animals after adding:", updatedUser.allAnimals);
-                res.send(updatedUser);
+                console.log(
+                  "User's animals after adding:",
+                  updatedUser.allAnimals,
+                )
+                res.send(updatedUser)
               })
               .catch((err) => {
-                console.error('Error fetching updated user:', err);
-                res.status(500).json({ error: 'Error fetching updated user' });
-              });
+                console.error('Error fetching updated user:', err)
+                res.status(500).json({ error: 'Error fetching updated user' })
+              })
           })
           .catch((err) => {
-            console.error('Error updating user:', err);
-            res.status(500).json({ error: 'Error updating user' });
-          });
+            console.error('Error updating user:', err)
+            res.status(500).json({ error: 'Error updating user' })
+          })
       } else {
-        console.log('User not exist');
-        res.status(404).json({ error: 'User not exist' });
+        console.log('User not exist')
+        res.status(404).json({ error: 'User not exist' })
       }
     })
     .catch((err) => {
-      console.error('Error finding user:', err);
-      res.status(500).json({ error: 'Error finding user' });
-    });
-});
-
+      console.error('Error finding user:', err)
+      res.status(500).json({ error: 'Error finding user' })
+    })
+})
 
 app.post('/setBorderPosition', (req, res) => {
   const { email, shape, mainBorder, nearestBorder, centerPosition } = req.body
