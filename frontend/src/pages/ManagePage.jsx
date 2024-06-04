@@ -272,21 +272,20 @@ const ManagePage = () => {
       try {
         border = JSON.parse(border)
       } catch (e) {
-        console.error('Error parsing JSON: ', e)
         border = null
       }
     } else {
       border = null
     }
     if (border) {
-      setMainBorder(border.mainBorder)
-      setNearestBorder(border.nearestBorder)
-      dispatch(setMainBorderSlice(border.mainBorder))
-      dispatch(setNearestBorderSlice(border.nearestBorder))
-      setShape(border.shape)
-      dispatch(setShapeSlice(border.shape))
-      setCenterPosition(border.centerPosition)
-      dispatch(setCenterPositionSlice(border.centerPosition))
+      // setMainBorder(border.mainBorder)
+      // setNearestBorder(border.nearestBorder)
+      // dispatch(setMainBorderSlice(border.mainBorder))
+      // dispatch(setNearestBorderSlice(border.nearestBorder))
+      // setShape(border.shape)
+      // dispatch(setShapeSlice(border.shape))
+      // setCenterPosition(border.centerPosition)
+      // dispatch(setCenterPositionSlice(border.centerPosition))
       setOwnerName(localStorage.getItem('name'))
       let ownerLoc = localStorage.getItem('ownerLocation').split(',')
       if (ownerLoc.length === 2) {
