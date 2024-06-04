@@ -186,8 +186,8 @@ const ManagePage = () => {
       const updatedMarkers = [...markers]
 
       for (let i = 0; i < count; i++) {
-        const latOffset = (Math.random() - 0.5) * 0.001 // slight random offset for latitude
-        const lngOffset = (Math.random() - 0.5) * 0.001 // slight random offset for longitude
+        const latOffset = (Math.random() - 0.5) * 0.001
+        const lngOffset = (Math.random() - 0.5) * 0.001
 
         const newAnimal = {
           name: `${newAnimalName} ${i + 1}`,

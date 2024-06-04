@@ -14,7 +14,21 @@ import owner from '../images/owner.png'
 import L from 'leaflet'
 
 function getLineColor(index) {
-  const colors = ['red', 'green', 'blue', 'purple', 'orange']
+  const colors = [
+    'rgba(255, 0, 0, 0.5)', // red
+    'rgba(0, 128, 0, 0.5)', // green
+    'rgba(0, 0, 255, 0.5)', // blue
+    'rgba(128, 0, 128, 0.5)', // purple
+    'rgba(255, 165, 0, 0.5)', // orange
+    'rgba(255, 192, 203, 0.5)', // pink
+    'rgba(255, 255, 0, 0.5)', // yellow
+    'rgba(0, 255, 255, 0.5)', // cyan
+    'rgba(128, 128, 0, 0.5)', // olive
+    'rgba(255, 0, 255, 0.5)', // magenta
+    'rgba(0, 0, 128, 0.5)', // navy
+    'rgba(128, 0, 0, 0.5)', // maroon
+  ]
+
   return colors[index % colors.length]
 }
 
@@ -104,7 +118,13 @@ function Map({ handleMapClick }) {
                         className: 'custom-marker',
                       })
                 }
-              />
+              >
+                <Popup>
+                  <div>
+                    <strong>Name:</strong> {animal.name} <br />
+                  </div>
+                </Popup>
+              </Marker>
             ))}
           </Polyline>
         ))}
