@@ -200,12 +200,15 @@ const ManagePage = () => {
           icon: selectedImage,
         }
 
+        console.log(selectedImage)
+
         updatedMarkers.push(newAnimal)
 
         axios
           .post('http://localhost:3001/addAnimal', {
             email: localStorage.getItem('email'),
             mainBorder,
+            icon: selectedImage,
             newAnimalLat: parseFloat(newAnimalLat) + latOffset,
             shape,
             newAnimalLng: parseFloat(newAnimalLng) + lngOffset,
@@ -272,7 +275,6 @@ const ManagePage = () => {
       try {
         border = JSON.parse(border)
       } catch (e) {
-        console.error('Error parsing JSON: ', e)
         border = null
       }
     } else {
@@ -399,7 +401,66 @@ const ManagePage = () => {
         console.log(err)
       })
   }
+  const [animalImage, setAnimalImage] = useState(null)
+  const [animalImageEdit, setAnimalImageEdit] = useState(null)
+  const [editAnimalImage, setEditAnimalImage] = useState(owner)
 
+  const handleImage = (e) => {
+    const file = e.target.files[0]
+    setAnimalImage(file)
+    setAnimalImageEdit(file.name)
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        const img = new Image()
+        img.src = reader.result
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const maxSize = 800 // Adjust this size as needed
+          let width = img.width
+          let height = img.height
+
+          if (width > height) {
+            if (width > maxSize) {
+              height *= maxSize / width
+              width = maxSize
+            }
+          } else {
+            if (height > maxSize) {
+              width *= maxSize / height
+              height = maxSize
+            }
+          }
+          canvas.width = width
+          canvas.height = height
+
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7) // Adjust compression level if needed
+          setEditAnimalImage(dataUrl)
+          setSelectedImage(dataUrl !== owner ? dataUrl : owner)
+        }
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/fetchAnimalImage', {
+        params: {
+          userEmail: localStorage.getItem('email'),
+        },
+      })
+      .then((response) => {
+        setAnimalImage(response.data.userImage)
+      })
+      .catch((error) => {
+        console.error('Error fetching user data:', error)
+      })
+  }, [])
   return (
     <div className="container">
       {/* <ToastContainer /> */}
@@ -419,7 +480,7 @@ const ManagePage = () => {
           <TabPanel>
             <div className="info">
               <div className="add-animal">
-                <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl  mb-[2vw]">
+                <h4 className="text-xl font-bold tracking-tighter text-center text-cyan-600 sm:text-2xl md:text-3xl mb-[2vw]">
                   Add New Animal Details
                 </h4>
 
@@ -466,6 +527,24 @@ const ManagePage = () => {
 
                 <label>Select Animal Icon:</label>
                 <div className="animal-icons">
+                  <label htmlFor="imageInput" className="custom-file-upload">
+                    Choose Image
+                  </label>
+                  <input
+                    id="imageInput"
+                    type="file"
+                    onChange={handleImage}
+                    className="file-input"
+                  />
+                  {editAnimalImage && (
+                    <img
+                      style={{
+                        borderRadius: '100vw',
+                      }}
+                      src={editAnimalImage}
+                      alt="animal"
+                    />
+                  )}
                   <img
                     src={cat}
                     alt="Cat"
