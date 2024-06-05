@@ -31,8 +31,8 @@ import elephant from '../images/elephant.webp'
 import owner from '../images/owner.png'
 import '../styles/CustomMarker.css'
 import axios from 'axios'
-// import { ToastContainer, toast } from 'react-toastify'
-// // import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import {
   setAnimalName,
   setAnimalLat,
@@ -48,6 +48,7 @@ import {
 import Map from '../Components/Map'
 
 const ManagePage = () => {
+
   const dispatch = useDispatch()
   const [markers, setMarkers] = useState([])
   const [activeTab, setActiveTab] = useState(0)
@@ -76,6 +77,13 @@ const ManagePage = () => {
   const [newAnimalLat, setNewAnimalLat] = useState('')
   const [newAnimalLng, setNewAnimalLng] = useState('')
   const [selectedImage, setSelectedImage] = useState(cat)
+
+  const [audioPlayCount, setAudioPlayCount] = useState(0);
+  const [audioPlayCount2, setAudioPlayCount2] = useState(0);
+  const [toastShown, setToastShown] = useState(false);
+
+  const alertAudioForDanger = new Audio("/audio/nearmainbordersound.wav");
+  const alertAudioForCompleteDanger = new Audio("/audio/completedanger.wav");
 
   useEffect(() => {
     setOwnerLocation([ownerLocation[0], ownerLocation[1]])
@@ -164,6 +172,29 @@ const ManagePage = () => {
 
     checkAnimalsBorders()
   }, [markers, centerPosition, mainBorder, nearestBorder, ownerLocation, shape])
+
+  useEffect(() => {
+    if (!toastShown && nearMainBorder.length > 0) {
+      const animalNames = nearMainBorder
+        .map((animal) => animal.name)
+        .join(", ");
+      toast.info(`${animalNames} is near the main border!`, {
+        autoClose: 3000,
+      });
+      setToastShown(true);
+    }
+
+    if (!toastShown && outsideMainBorder.length > 0) {
+      const animalNames = outsideMainBorder
+        .map((animal) => animal.name)
+        .join(", ");
+      toast.error(`${animalNames} is outside the main border!`, {
+        autoClose: 3000,
+      });
+      setToastShown(true);
+    }
+    console.log(outsideMainBorder, "hi");
+  }, [nearMainBorder, outsideMainBorder, toastShown]);
 
   const calculateDistance = (position1, position2) => {
     const [lat1, lng1] = position1
@@ -341,6 +372,20 @@ const ManagePage = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (nearMainBorder.length > 0 && audioPlayCount < 1) {
+      alertAudioForDanger.play();
+      setAudioPlayCount((prevCount) => prevCount + 1);
+    }
+    setTimeout(() => {
+      if (outsideMainBorder.length > 0 && audioPlayCount2 < 1) {
+        alertAudioForCompleteDanger.play();
+        setAudioPlayCount2((prevCount) => prevCount + 1);
+      }
+    }, 4000)
+    console.log("Hii");
+  }, [nearMainBorder]);
+
   const getRectangleBounds = (center, size) => {
     const halfSize = size / 2 / 111320
     return [
@@ -403,7 +448,7 @@ const ManagePage = () => {
 
   return (
     <div className="container">
-      {/* <ToastContainer /> */}
+      <ToastContainer />
 
       <Map handleMapClick={handleMapClick} />
       <div className="info-container">
