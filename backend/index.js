@@ -19,12 +19,6 @@ mongoose
   .then(() => console.log('mongoDB connected'))
   .catch((err) => console.log('mongoDB error'))
 
-app.get('/alluser', (req, res) => {
-  UsersModel.find()
-    .then((users) => res.send(users))
-    .catch((err) => res.send(err))
-})
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/')
@@ -38,7 +32,31 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 app.post('/addAnimal', upload.single('image'), (req, res) => {
-  const { email, newAnimalName, newAnimalLat, newAnimalLng } = req.body
+  const {
+    email,
+    newAnimalName,
+    newAnimalLat,
+    newAnimalLng,
+    iconName,
+  } = req.body
+
+  // Assuming iconName specifies the type of animal (cat, dog, lion)
+  let iconUrl = ''
+
+  console.log(iconName)
+  if (iconName === 'elephant') {
+    iconUrl = 'http://localhost:5173/src/images/elephant.webp'
+  }
+  if (iconName === 'cat') {
+    iconUrl = 'http://localhost:5173/src/images/cat.png'
+  }
+  if (iconName === 'dog') {
+    iconUrl = 'http://localhost:5173/src/images/dog.png'
+  }
+  if (iconName === 'lion') {
+    iconUrl =
+      'https://static.vecteezy.com/system/resources/previews/016/445/420/original/cute-lion-face-cartoon-icon-illustration-animal-icon-concept-isolated-flat-cartoon-style-lion-illustration-vector.jpg'
+  }
 
   UsersModel.findOne({ userEmail: email })
     .then((user) => {
@@ -46,9 +64,7 @@ app.post('/addAnimal', upload.single('image'), (req, res) => {
         const newAnimal = {
           name: newAnimalName,
           positions: [[newAnimalLat, newAnimalLng]],
-          icon: req.file
-            ? req.file.filename
-            : '' || 'https://cdn-icons-png.flaticon.com/512/4775/4775679.png',
+          icon: req.file ? req.file.filename : iconUrl,
         }
 
         UsersModel.updateOne(
@@ -160,5 +176,5 @@ app.post('/login', (req, res) => {
 })
 
 app.listen(3001, () => {
-  console.log('Server is running')
+  console.log('Server is running')
 })

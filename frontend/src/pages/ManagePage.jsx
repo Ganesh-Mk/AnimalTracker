@@ -75,7 +75,7 @@ const ManagePage = () => {
   const [newAnimalName, setNewAnimalName] = useState('')
   const [newAnimalLat, setNewAnimalLat] = useState('')
   const [newAnimalLng, setNewAnimalLng] = useState('')
-  const [selectedImage, setSelectedImage] = useState(cat)
+  const [selectedImage, setSelectedImage] = useState('')
 
   useEffect(() => {
     setOwnerLocation([ownerLocation[0], ownerLocation[1]])
@@ -180,7 +180,7 @@ const ManagePage = () => {
     return R * c
   }
 
-  const handleAddAnimal = () => {
+  const handleAddAnimal = (e) => {
     if (newAnimalName && newAnimalLat && newAnimalLng) {
       const count = numberOfAnimals ? parseInt(numberOfAnimals, 10) : 1
       const updatedMarkers = [...markers]
@@ -200,7 +200,16 @@ const ManagePage = () => {
           icon: selectedImage,
         }
 
+        let iconName = 'cat'
         console.log(selectedImage)
+
+        if (selectedImage.includes('cat')) {
+          iconName = 'cat'
+        } else if (selectedImage.includes('dog')) {
+          iconName = 'dog'
+        } else if (selectedImage.includes('lion')) {
+          iconName = 'lion'
+        }
 
         updatedMarkers.push(newAnimal)
 
@@ -208,6 +217,7 @@ const ManagePage = () => {
           .post('http://localhost:3001/addAnimal', {
             email: localStorage.getItem('email'),
             mainBorder,
+            iconName: iconName,
             icon: selectedImage,
             newAnimalLat: parseFloat(newAnimalLat) + latOffset,
             shape,
@@ -513,24 +523,6 @@ const ManagePage = () => {
 
                 <label>Select Animal Icon:</label>
                 <div className="animal-icons">
-                  <label htmlFor="imageInput" className="custom-file-upload">
-                    Choose Image
-                  </label>
-                  <input
-                    id="imageInput"
-                    type="file"
-                    onChange={handleImage}
-                    className="file-input"
-                  />
-                  {editAnimalImage && (
-                    <img
-                      style={{
-                        borderRadius: '100vw',
-                      }}
-                      src={editAnimalImage}
-                      alt="animal"
-                    />
-                  )}
                   <img
                     src={cat}
                     alt="Cat"
@@ -747,4 +739,4 @@ const ManagePage = () => {
   }
 }
 
-export default ManagePage
+export default ManagePage
